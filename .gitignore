@@ -218,3 +218,20 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# hatch-vcs writes the version file at build time.
+__version__.py
+.omc/
+
+# Private recordings, prompts and inference artifacts never belong in this repo.
+.DS_Store
+*.mp4
+*.wav
+*.srt
+*.vtt
+*.ass
+*.words.json
+*.vexy-subs.json
+*.work/
+private/
+prompts/
