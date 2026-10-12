@@ -1,7 +1,7 @@
 <!-- this_file: CHANGELOG.md -->
 # Changelog
 
-## Unreleased
+## 1.0.1
 - Added `translate`, ported from the retired vttrix package: two-pass (translate,
   refine) LLM subtitle translation for SRT/VTT/ASS/SSA with a JSON glossary,
   previous-chunk context, timing and ASS speaker styles preserved, and the output
