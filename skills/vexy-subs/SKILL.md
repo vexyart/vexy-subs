@@ -19,6 +19,8 @@ vexy-subs transcribe clip.mp4 --prompt_file=hints.md --output_dir=subtitles
 vexy-subs batch videos --prompt_dir=hints --output_dir=subtitles
 vexy-subs beautify subtitles --recursive --backend=local
 vexy-subs verify subtitles
+vexy-subs translate subtitles/clip.ass subtitles/clip.pl.ass PROFILE English Polish
+vexy-subs llm profiles
 ```
 
 Inspect actual caption text and rendered speaker changes as well as parser checks.
@@ -33,3 +35,8 @@ sets can be post-fixed without redoing model inference; originals are retained i
 the README's platformdirs TOML and dotenv/env contract. The local route keeps
 caption text on the machine; only an explicitly configured LLM endpoint receives
 caption tokens. Do not call numerical checks a Netflix editorial certification.
+
+`translate` sends caption text to the named OpenAI-compatible endpoint; confirm
+that the user accepts a remote provider before using one. Prefer ASS input and
+output so speaker colours survive. `vexy-subs llm check SPEC` validates a profile
+or `model::ENV_KEY::base_url` spec without a network call.

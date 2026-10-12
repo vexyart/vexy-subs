@@ -4,6 +4,7 @@
 import html
 import importlib.util
 import json
+import os
 import platform
 import re
 import shutil
@@ -12,10 +13,68 @@ import sys
 from pathlib import Path
 
 from . import __version__
+from . import llm as llm_module
 from .formats import verify
 from .io import sha256
 from .pipeline import run
 from .postprocess import run as beautify_run
+from .translate import run as translate_run
+
+
+class LLM:
+    """OpenAI-compatible providers and profiles shared by translate and beautify."""
+
+    def path(self) -> str:
+        """Print the config file that holds [model_providers.*] and [profiles.*]."""
+        return str(llm_module.config_path())
+
+    def profiles(self, config_file: str = "", env_file: str = "") -> dict:
+        """List profiles and providers (configured plus discovered); never key values."""
+        llm_module.load_env(env_file, config_file)
+        data = llm_module.read_config(config_file)
+        found = llm_module.providers(data)
+        return {
+            "config": config_file or str(llm_module.config_path()),
+            "profiles": {
+                name: {
+                    "model": p.get("model", ""),
+                    "provider": p.get("model_provider", ""),
+                    "provider_found": p.get("model_provider", "") in found,
+                }
+                for name, p in data.get("profiles", {}).items()
+            },
+            "providers": {
+                name: {
+                    "base_url": p.get("base_url", ""),
+                    "env_key": p.get("env_key", ""),
+                    "key_set": bool(os.environ.get(p.get("env_key", ""))),
+                }
+                for name, p in found.items()
+            },
+        }
+
+    def discover(
+        self, save: bool = False, config_file: str = "", env_file: str = ""
+    ) -> dict:
+        """Find {PREFIX}_API_KEY + {PREFIX}_API_ENDPOINT pairs; --save appends them to config."""
+        llm_module.load_env(env_file, config_file)
+        found = llm_module.discover_providers()
+        added = llm_module.append_providers(found, config_file) if save else []
+        return {
+            "discovered": {
+                n: {"base_url": p["base_url"], "env_key": p["env_key"]}
+                for n, p in found.items()
+            },
+            "saved": added,
+        }
+
+    def check(self, spec: str, config_file: str = "", env_file: str = "") -> list:
+        """Resolve an LLM spec (profile, model::ENV_KEY::base_url, or a,b) without calling it."""
+        llm_module.load_env(env_file, config_file)
+        return [
+            {**e.receipt(), "key_set": bool(e.api_key)}
+            for e in llm_module.resolve_all(spec, llm_module.read_config(config_file))
+        ]
 
 
 class CLI:
@@ -23,6 +82,8 @@ class CLI:
 
     transcribe = staticmethod(run)
     beautify = staticmethod(beautify_run)
+    translate = staticmethod(translate_run)
+    llm = LLM()
 
     def version(self) -> str:
         """Print the installed package version."""
@@ -56,6 +117,7 @@ class CLI:
         backend: str = "",
         config_file: str = "",
         env_file: str = "",
+        llm: str = "",
     ) -> dict:
         """Render edited timed words offline, without loading inference models."""
         from .cues import segment
@@ -83,7 +145,7 @@ class CLI:
                 duration,
                 language,
                 fps,
-                load_config(config_file, env_file, backend),
+                load_config(config_file, env_file, backend, llm),
             )
         else:
             cues, info = segment(words), {"disabled": True}
@@ -109,6 +171,7 @@ class CLI:
         beautify_backend: str = "",
         config_file: str = "",
         env_file: str = "",
+        llm: str = "",
         strict: bool = False,
         beautify_language: str = "",
         fps: float = 0,
@@ -143,6 +206,7 @@ class CLI:
                 f"--beautify_backend={beautify_backend}",
                 f"--config_file={config_file}",
                 f"--env_file={env_file}",
+                f"--llm={llm_module.spec_text(llm)}",
                 f"--strict={strict}",
                 f"--beautify_language={beautify_language}",
                 f"--fps={fps}",

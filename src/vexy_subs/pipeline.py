@@ -47,6 +47,7 @@ def run(
     beautify_language: str = "",
     config_file: str = "",
     env_file: str = "",
+    llm: str = "",
     fps: float = 0,
     strict: bool = False,
 ) -> dict:
@@ -90,7 +91,9 @@ def run(
     punctuation_key = hashlib.sha256(
         json.dumps(options, sort_keys=True).encode()
     ).hexdigest()
-    config = load_config(config_file, env_file, beautify_backend) if beautify else None
+    config = (
+        load_config(config_file, env_file, beautify_backend, llm) if beautify else None
+    )
     rate = frame_rate(source, fps) if beautify else 0
     if config:
         options["beautification"] = {

@@ -20,6 +20,12 @@ embeddings, speaker-count estimation and spectral clustering without account
 registration. Its compatible torch/torchaudio bounds are declared upstream;
 installing both extras selects a version satisfying both sets of constraints.
 
+Translation reuses pysubs2 (all subtitle formats, styles kept), HTTPX
+(OpenAI-compatible chat completions) and platformdirs/tomllib (provider and
+profile config); it adds no dependencies. vttrix's pydantic, pydantic-ai,
+tiktoken, rich and tomli-w were dropped: plain dataclasses, one HTTP call per
+pass and text appends to the TOML file cover the same ground.
+
 Build: hatchling with hatch-vcs (version from git tags).
 Tests/build: pytest, pytest-cov, ruff, build and twine.
 

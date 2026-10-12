@@ -10,3 +10,22 @@ except ImportError:  # Source checkout without a build: ask installed metadata.
         __version__ = version("vexy-subs")
     except PackageNotFoundError:
         __version__ = "0.0.0"
+
+from .translate import (
+    Subtitle,
+    SubtitleFile,
+    load_subtitles,
+    save_subtitles,
+    translate_subtitles,
+    translate_subtitles_sync,
+)
+
+__all__ = [
+    "Subtitle",
+    "SubtitleFile",
+    "__version__",
+    "load_subtitles",
+    "save_subtitles",
+    "translate_subtitles",
+    "translate_subtitles_sync",
+]

@@ -229,6 +229,7 @@ def run(
     backend: str = "",
     config_file: str = "",
     env_file: str = "",
+    llm: str = "",
     recursive: bool = False,
     output_dir: str = "",
     force: bool = False,
@@ -240,7 +241,7 @@ def run(
     Use --recursive for a video tree. --strict rejects unresolved numeric constraints
     before replacing each set. Inference and archived private data are never rerun.
     """
-    config = load_config(config_file, env_file, backend)
+    config = load_config(config_file, env_file, backend, llm)
     inputs = targets(Path(path).resolve(), recursive)
     if not inputs:
         raise ValueError("No subtitle sets found")

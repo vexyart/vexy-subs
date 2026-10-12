@@ -13,11 +13,13 @@ vexy-subs transcribe clip.mp4 --prompt_file=hints.md --output_dir=subtitles
 vexy-subs batch videos --prompt_dir=hints --output_dir=subtitles
 vexy-subs beautify subtitles
 vexy-subs verify subtitles --source_dir=videos
+vexy-subs translate subtitles/clip.ass subtitles/clip.pl.ass PROFILE English Polish
 ```
 
 The base package installs without inference libraries. Install the `apple` extra
 for local inference on Apple Silicon, plus FFmpeg and ffprobe on PATH. The first
-run downloads open model weights. No API key or paid inference service is needed.
+run downloads open model weights. No API key or paid inference service is needed;
+only `translate` and the optional LLM post-fix call an endpoint you configure.
 The base package can render manually edited timed words without model inference:
 `vexy-subs render edited.words.json subtitles/edited`.
 
@@ -149,6 +151,44 @@ sync, glyph coverage, regional editorial rules and full playback need review.
 The existing speaker colours are retained; they are a project convention rather
 than Netflix's white-text delivery style.
 
+## Translation
+
+`translate` turns an SRT, VTT, ASS or SSA file into another language with any
+OpenAI-compatible model. It keeps every cue's timing, and an ASS input keeps its
+speaker styles and colours. The output extension picks the format.
+
+```bash
+vexy-subs translate talk.ass talk.pl.ass cerebras-code English Polish
+vexy-subs translate talk.srt talk.de.vtt \
+  "gpt-4o::OPENAI_API_KEY::https://api.openai.com/v1" en de --vocab=glossary.json
+vexy-subs translate talk.srt talk.fr.srt fast,careful en fr   # try fast, then careful
+```
+
+Cues go to the model in chunks of 40 (`--chunk_size`) with the glossary and the
+previous translated chunk as context. A second pass refines stiff phrasing
+(`--refine=False` skips it). Cues travel as numbered JSON, so a reply that drops,
+merges or reorders a cue is retried, then the next model in the list is tried,
+then the chunk is halved, and finally the command fails rather than shifting
+timestamps. Keys can come from `--env_file` or the `.env` files described below.
+The glossary is a JSON object of exact term translations, e.g.
+`{"kerning": "kerning"}`. An existing output needs `--force`. Subtitle text is
+sent to the endpoint you name.
+
+The same API is importable:
+
+```python
+from vexy_subs import load_subtitles, save_subtitles, translate_subtitles_sync
+
+subs = load_subtitles("talk.srt")
+save_subtitles(translate_subtitles_sync(subs, "cerebras-code", "en", "pl"), "talk.pl.vtt")
+```
+
+`translate_subtitles` is the awaitable form. This replaces the retired `vttrix`
+package: `vttrix translate a b llm src dst --vocab=v.json` becomes
+`vexy-subs translate a b llm src dst --vocab=v.json`, and `from vttrix import ...`
+becomes `from vexy_subs import ...`. Move `[model_providers.*]` and `[profiles.*]`
+from vttrix's `config.toml` into the vexy-subs one below.
+
 ## Optional LLM and configuration
 
 Configuration lives at `platformdirs.user_config_path("vexy-subs", appauthor=False)`
@@ -175,6 +215,30 @@ Explicit CLI choices take precedence over environment, then TOML, then defaults.
 Use `--env_file` / `--config_file` for explicit paths. The integrated commands use
 `--beautify_backend` and `--beautify_language`; standalone `beautify` uses
 `--backend` and `--language`. `batch` forwards backend/config/env/strict choices.
+
+LLM providers and profiles use the Codex CLI layout in the same file. A profile
+or explicit `model::ENV_KEY::base_url` spec selects the model for `translate`;
+pass it as `--llm` to `transcribe`, `render`, `batch` or `beautify`, set
+`VEXY_SUBS_LLM`, or set `[llm] profile`, and it replaces the `[llm]` model,
+base URL and key (beautify uses the first spec of a list; `VEXY_SUBS_LLM_MODEL`
+and `_BASE_URL` still beat a TOML profile). Only key variable names are stored; values stay in the
+environment.
+
+```toml
+[model_providers.cerebras]
+base_url = "https://api.cerebras.ai/v1"
+env_key = "CEREBRAS_API_KEY"
+
+[profiles.cerebras-code]
+model = "zai-glm-4.7"
+model_provider = "cerebras"
+```
+
+Providers are also discovered from `{PREFIX}_API_KEY` paired with
+`{PREFIX}_API_ENDPOINT` or `{PREFIX}_API_OPENAI`. `vexy-subs llm profiles` lists
+both, `vexy-subs llm discover --save` appends discovered providers to the file
+without touching existing text, `vexy-subs llm check SPEC` resolves a spec
+without calling it, and `vexy-subs llm path` prints the file location.
 
 An LLM receives batches of subtitle tokens and anonymous speaker IDs. It may
 remove unnecessary tokens and correct casing/punctuation; validation rejects

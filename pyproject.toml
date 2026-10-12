@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 [project]
 name = "vexy-subs"
 dynamic = ["version"]
-description = "Local speaker-coloured video subtitles with contextual hints and punctuation restoration"
+description = "Local speaker-coloured video subtitles with contextual hints, punctuation restoration and LLM translation"
 readme = "README.md"
 requires-python = ">=3.12"
 license = "Apache-2.0"

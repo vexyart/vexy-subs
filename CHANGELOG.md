@@ -1,6 +1,30 @@
 <!-- this_file: CHANGELOG.md -->
 # Changelog
 
+## Unreleased
+- Added `translate`, ported from the retired vttrix package: two-pass (translate,
+  refine) LLM subtitle translation for SRT/VTT/ASS/SSA with a JSON glossary,
+  previous-chunk context, timing and ASS speaker styles preserved, and the output
+  format taken from the destination extension. Cues are exchanged as numbered
+  JSON; dropped, merged or reordered cues are retried and then fail loudly
+  instead of shifting timestamps (vttrix silently misaligned them).
+- Added Codex-style `[model_providers.*]`/`[profiles.*]` config, provider
+  discovery from `{PREFIX}_API_KEY` + `{PREFIX}_API_ENDPOINT`/`_API_OPENAI`,
+  `model::ENV_KEY::base_url` specs and comma-separated fallback lists, plus the
+  `llm` command group (`path`, `profiles`, `discover --save`, `check`).
+- Beautification can pick its LLM by spec: `--llm`, `VEXY_SUBS_LLM` or
+  `[llm] profile`.
+- Exported the vttrix library API: `Subtitle`, `SubtitleFile`,
+  `load_subtitles`, `save_subtitles`, `translate_subtitles`,
+  `translate_subtitles_sync`. A missing `--vocab` file is now an error.
+- Differences from vttrix: an existing output needs `--force`; input that
+  holds text but no cues is an error; discovery only matches upper-case
+  `{PREFIX}_API_KEY` names with an HTTP(S) endpoint; keys may also come from
+  `--env_file` or `.env` files. A rejected reply is retried with the reason,
+  then a failing chunk is halved down to single cues; 401/403 skip to the next
+  model and 429/5xx back off. `<think>` blocks and prose around the JSON reply
+  are tolerated. `{...}` in translated text is read as an ASS tag by pysubs2.
+
 ## 1.0.0
 - Added `build.sh` (test, build, twine check) and `publish.sh` (test,
   gitnextver tag, build, `uv publish` with retry on rate limits).
