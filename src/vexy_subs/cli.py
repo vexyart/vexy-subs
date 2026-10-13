@@ -12,7 +12,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from . import __version__
+from . import __version__, qwen
 from . import llm as llm_module
 from .formats import verify
 from .io import sha256
@@ -89,6 +89,27 @@ class CLI:
         """Print the installed package version."""
         return __version__
 
+    def models(self) -> dict:
+        """List the selected pipeline models, without downloading weights."""
+        from .inference import DIAR
+        from .punctuation import MODEL
+
+        return {
+            "asr": {
+                "primary": qwen.MODEL,
+                "fallback": "audio.cpp/qwen3_asr (1.7B Q8_0)",
+                "backend": "auto",
+            },
+            "alignment": {"mlx": qwen.ALIGNER, "audiocpp": "qwen3_forced_aligner"},
+            "diarization": {
+                "mlx": DIAR,
+                "audiocpp": "nemotron_3_diar",
+                "large_meetings": "diarize/WeSpeaker-ResNet34-LM",
+            },
+            "punctuation": {"default": "preserve ASR", "optional": MODEL},
+            "editing": "audited local beautification; optional configured LLM",
+        }
+
     def doctor(self) -> dict:
         """Report local prerequisites; no API keys or cloud authentication are required."""
         return {
@@ -100,7 +121,13 @@ class CLI:
             "ffprobe": bool(shutil.which("ffprobe")),
             "inference_installed": all(
                 importlib.util.find_spec(p) is not None
-                for p in ("mlx_whisper", "mlx_audio", "deepmultilingualpunctuation")
+                for p in ("mlx_audio", "deepmultilingualpunctuation")
+            ),
+            "asr_backend": qwen.select_backend("auto"),
+            "asr_model": qwen.MODEL,
+            "mlx_available": qwen.mlx_available(),
+            "audiocpp_installed": bool(
+                shutil.which(os.getenv("VEXY_SUBS_AUDIOCPP_BIN", "audiocpp_cli"))
             ),
             "cluster_installed": importlib.util.find_spec("diarize") is not None,
         }
@@ -175,6 +202,14 @@ class CLI:
         strict: bool = False,
         beautify_language: str = "",
         fps: float = 0,
+        asr_backend: str = "auto",
+        asr_model: str = "",
+        diar_model: str = "",
+        model_workspace: str = "",
+        alignment_model: str = "",
+        punctuation_model: str = "",
+        audiocpp_bin: str = "",
+        audiocpp_backend: str = "auto",
     ) -> dict:
         """Process videos sequentially; require every per-video hint when prompt_dir is given."""
         videos = sorted(Path(folder).resolve().glob(pattern))
@@ -215,6 +250,22 @@ class CLI:
                 command.extend(
                     [f"--diar_backend={diar_backend}", f"--max_speakers={max_speakers}"]
                 )
+            elif max_speakers != 40:
+                command.append(f"--max_speakers={max_speakers}")
+            if asr_backend != "auto":
+                command.append(f"--asr_backend={asr_backend}")
+            if audiocpp_backend != "auto":
+                command.append(f"--audiocpp_backend={audiocpp_backend}")
+            for key, value in (
+                ("asr_model", asr_model),
+                ("diar_model", diar_model),
+                ("model_workspace", model_workspace),
+                ("alignment_model", alignment_model),
+                ("punctuation_model", punctuation_model),
+                ("audiocpp_bin", audiocpp_bin),
+            ):
+                if value:
+                    command.append(f"--{key}={value}")
             if video in prompts:
                 command.append(f"--prompt_file={prompts[video]}")
             try:

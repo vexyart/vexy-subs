@@ -2578,6 +2578,11 @@ apple = [
 cluster = [
     { name = "diarize" },
 ]
+native = [
+    { name = "deepmultilingualpunctuation" },
+    { name = "torch" },
+    { name = "transformers" },
+]
 test = [
     { name = "build" },
     { name = "pytest" },
@@ -2590,6 +2595,7 @@ test = [
 requires-dist = [
     { name = "build", marker = "extra == 'test'", specifier = ">=1.2" },
     { name = "deepmultilingualpunctuation", marker = "extra == 'apple'", specifier = "==1.0.1" },
+    { name = "deepmultilingualpunctuation", marker = "extra == 'native'", specifier = "==1.0.1" },
     { name = "diarize", marker = "extra == 'cluster'", specifier = "==0.1.2" },
     { name = "fire", specifier = ">=0.7.1,<0.8" },
     { name = "httpx", specifier = ">=0.28,<1" },
@@ -2608,11 +2614,13 @@ requires-dist = [
     { name = "ruff", marker = "extra == 'test'", specifier = ">=0.12" },
     { name = "soundfile", marker = "extra == 'apple'", specifier = ">=0.13" },
     { name = "torch", marker = "extra == 'apple'", specifier = ">=2.6" },
+    { name = "torch", marker = "extra == 'native'", specifier = ">=2.6" },
     { name = "transformers", marker = "extra == 'apple'", specifier = ">=5.14,<6" },
+    { name = "transformers", marker = "extra == 'native'", specifier = ">=5.14,<6" },
     { name = "twine", marker = "extra == 'test'", specifier = ">=6" },
     { name = "webvtt-py", specifier = ">=0.5.1,<0.6" },
 ]
-provides-extras = ["apple", "cluster", "test"]
+provides-extras = ["apple", "cluster", "native", "test"]
 
 [[package]]
 name = "webvtt-py"

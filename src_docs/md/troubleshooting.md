@@ -1,3 +1,4 @@
+<!-- this_file: src_docs/md/troubleshooting.md -->
 # Troubleshooting
 
 Start with `vexy-subs doctor`. It shows whether FFmpeg, `ffprobe` and the
@@ -37,7 +38,7 @@ turns with `--turns_file`.
 
 ## `Require a supported diar_backend and positive max_speakers`
 
-`--diar_backend` must be `auto`, `nemotron` or `cluster`, and `--max_speakers`
+`--diar_backend` must be `auto`, `nemotron`, `audiocpp`, `workspace` or `cluster`, and `--max_speakers`
 must be at least 1.
 
 ## `speaker_map must be a JSON object mapping IDs to nonempty labels`
@@ -112,3 +113,21 @@ because a caption file was edited by hand after it was generated. Edit
 
 An output file no longer matches the hash in its receipt. Regenerate it, or
 render it again from edited words.
+
+
+## Native Qwen prerequisites
+
+When MLX is unavailable, automatic ASR selects Qwen audio.cpp. Install
+`audiocpp_cli` and configure `VEXY_SUBS_QWEN_MODEL` and
+`VEXY_SUBS_QWEN_ALIGNER`, or pass their model flags. A repository ID cannot be
+used as a native GGUF path. For native diarization, configure
+`VEXY_SUBS_NEMOTRON_MODEL`; otherwise install `[cluster]` or supply verified turns.
+See [native setup](installation.md#native-qwen-setup).
+
+## Alignment changed recognised words
+
+The package refuses an aligner result that omits, adds or rewrites lexical text.
+Native Qwen uses independent bounded requests in one loaded session to avoid
+internal long-audio word filtering. Use the documented compatible audio.cpp CLI
+and matching model family. Do not replace failed alignment with proportional
+word timings. Acoustic zero-duration words are marked ambiguous in final output.

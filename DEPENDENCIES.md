@@ -4,8 +4,8 @@
 Core: Fire (CLI), pysubs2 (ASS/SRT serialization and parsing), webvtt-py (WebVTT
 voices/styles), intervaltree (efficient word-to-speaker activity lookup).
 
-Apple extra: mlx-whisper 0.4.3 (hint-aware word-timed ASR), mlx-audio 0.5.7
-(Nemotron diarization), torch/Transformers (FullStop token classification),
+Apple extra: mlx-whisper 0.4.3 (explicit Whisper cross-check), mlx-audio 0.5.7
+(Qwen ASR, forced alignment and Nemotron diarization), torch/Transformers (FullStop token classification),
 deepmultilingualpunctuation 1.0.1 (word-aligned punctuation prediction).
 FFmpeg/ffprobe are external executables. No service authentication is required.
 
@@ -35,3 +35,12 @@ Pillow (proportional font advances), python-dotenv (private environment files),
 platformdirs (canonical config/cache paths), Loguru (optional debug logging), and HTTPX (optional configured
 OpenAI-compatible LLM endpoint). No LLM, GPU or ASR libraries are needed to
 beautify existing subtitles. NLTK weights download on first English post-fix.
+
+Qwen primary: mlx-community/Qwen3-ASR-1.7B-8bit and Qwen3-ForcedAligner-0.6B-8bit
+through mlx-audio 0.5.7; Apache-2.0 model weights. The compatible community
+conversion is used directly, without a private tensor-layout adapter.
+Native fallback: separately installed audio.cpp 0.9.1-compatible CLI, Qwen3-ASR
+1.7B Q8_0 and Qwen3 ForcedAligner GGUF; Nemotron GGUF supports native diarization.
+Native models/binary are external and fingerprinted for cache identity. No rejected
+ASR family or private workspace is required. The native extra installs the
+optional FullStop dependencies; Qwen punctuation is retained by default.

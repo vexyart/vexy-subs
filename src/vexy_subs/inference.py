@@ -3,15 +3,29 @@
 
 from pathlib import Path
 
+from . import qwen
 from .hints import vocabulary
 from .types import Turn, Word
 
-ASR = "mlx-community/whisper-large-v3-turbo"
+ASR = qwen.MODEL
+WHISPER = "mlx-community/whisper-large-v3-turbo"
 DIAR = "mlx-community/Nemotron-3-Diarization-8bit"
 
 
 def transcribe(
-    wav: Path, hints: str, language: str, model: str = ASR
+    wav: Path,
+    hints: str,
+    language: str,
+    model: str = ASR,
+    alignment_model: str = qwen.ALIGNER,
+) -> tuple[list[Word], dict]:
+    """Primary recognition is Qwen, with actual forced-aligned word timings."""
+    qwen.check_model(model)
+    return qwen.transcribe(wav, hints, language, model, alignment_model)
+
+
+def whisper(
+    wav: Path, hints: str, language: str, model: str = WHISPER
 ) -> tuple[list[Word], dict]:
     """Forward the actual hint file to Whisper's contextual initial prompt."""
     import mlx_whisper
@@ -56,6 +70,15 @@ def diarize(
         }
     if backend not in {"nemotron", "auto"}:
         raise ValueError("diar_backend must be auto, nemotron or cluster")
+    if not qwen.mlx_available():
+        if backend == "nemotron":
+            raise RuntimeError("MLX Nemotron unavailable; choose diar_backend audiocpp or cluster")
+        try:
+            return diarize(wav, model, "cluster", max_speakers)
+        except ImportError as error:
+            raise RuntimeError(
+                "MLX diarization unavailable; install vexy-subs[cluster], choose native diarization, or supply turns_file"
+            ) from error
     from mlx_audio.vad import load
 
     detector = load(model, strict=True)

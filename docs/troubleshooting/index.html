@@ -783,6 +783,28 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#native-qwen-prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Native Qwen prerequisites
+
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#alignment-changed-recognised-words" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Alignment changed recognised words
+
+    </span>
+  </a>
+
+</li>
+
     </ul>
   
 </nav>
@@ -1080,6 +1102,28 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#native-qwen-prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Native Qwen prerequisites
+
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#alignment-changed-recognised-words" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Alignment changed recognised words
+
+    </span>
+  </a>
+
+</li>
+
     </ul>
   
 </nav>
@@ -1098,6 +1142,7 @@
   
 
 
+<!-- this_file: src_docs/md/troubleshooting.md -->
 <h1 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h1>
 <p>Start with <code>vexy-subs doctor</code>. It shows whether FFmpeg, <code>ffprobe</code> and the
 optional extras are installed.</p>
@@ -1121,7 +1166,7 @@ another stem or add <code>--force</code>.</p>
 installed. Install the extra, use <code>--diar_backend=cluster</code>, or supply verified
 turns with <code>--turns_file</code>.</p>
 <h2 id="require-a-supported-diar_backend-and-positive-max_speakers"><code>Require a supported diar_backend and positive max_speakers</code><a class="headerlink" href="#require-a-supported-diar_backend-and-positive-max_speakers" title="Permanent link">&para;</a></h2>
-<p><code>--diar_backend</code> must be <code>auto</code>, <code>nemotron</code> or <code>cluster</code>, and <code>--max_speakers</code>
+<p><code>--diar_backend</code> must be <code>auto</code>, <code>nemotron</code>, <code>audiocpp</code>, <code>workspace</code> or <code>cluster</code>, and <code>--max_speakers</code>
 must be at least 1.</p>
 <h2 id="speaker_map-must-be-a-json-object-mapping-ids-to-nonempty-labels"><code>speaker_map must be a JSON object mapping IDs to nonempty labels</code><a class="headerlink" href="#speaker_map-must-be-a-json-object-mapping-ids-to-nonempty-labels" title="Permanent link">&para;</a></h2>
 <p>The <code>--speaker_map</code> file must be a JSON object whose values are non-empty
@@ -1168,6 +1213,19 @@ because a caption file was edited by hand after it was generated. Edit
 <h2 id="changed-output-verify"><code>Changed output: ...</code> (verify)<a class="headerlink" href="#changed-output-verify" title="Permanent link">&para;</a></h2>
 <p>An output file no longer matches the hash in its receipt. Regenerate it, or
 render it again from edited words.</p>
+<h2 id="native-qwen-prerequisites">Native Qwen prerequisites<a class="headerlink" href="#native-qwen-prerequisites" title="Permanent link">&para;</a></h2>
+<p>When MLX is unavailable, automatic ASR selects Qwen audio.cpp. Install
+<code>audiocpp_cli</code> and configure <code>VEXY_SUBS_QWEN_MODEL</code> and
+<code>VEXY_SUBS_QWEN_ALIGNER</code>, or pass their model flags. A repository ID cannot be
+used as a native GGUF path. For native diarization, configure
+<code>VEXY_SUBS_NEMOTRON_MODEL</code>; otherwise install <code>[cluster]</code> or supply verified turns.
+See <a href="../installation/#native-qwen-setup">native setup</a>.</p>
+<h2 id="alignment-changed-recognised-words">Alignment changed recognised words<a class="headerlink" href="#alignment-changed-recognised-words" title="Permanent link">&para;</a></h2>
+<p>The package refuses an aligner result that omits, adds or rewrites lexical text.
+Native Qwen uses independent bounded requests in one loaded session to avoid
+internal long-audio word filtering. Use the documented compatible audio.cpp CLI
+and matching model family. Do not replace failed alignment with proportional
+word timings. Acoustic zero-duration words are marked ambiguous in final output.</p>
 
 
 

@@ -402,6 +402,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#native-qwen-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Native Qwen setup
+
+    </span>
+  </a>
+
+</li>
+
     </ul>
   
 </nav>
@@ -750,6 +761,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#native-qwen-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Native Qwen setup
+
+    </span>
+  </a>
+
+</li>
+
     </ul>
   
 </nav>
@@ -768,13 +790,14 @@
   
 
 
+<!-- this_file: src_docs/md/installation.md -->
 <h1 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h1>
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Python 3.12 or later.</li>
 <li><a href="https://docs.astral.sh/uv/">uv</a> to install the command-line tool.</li>
-<li>For transcription: a Mac with Apple Silicon, and FFmpeg with <code>ffprobe</code> on
-  <code>PATH</code>.</li>
+<li>For transcription: FFmpeg with <code>ffprobe</code> on <code>PATH</code>; Apple Silicon for MLX,
+  or an installed audio.cpp binary and GGUF models on other hosts.</li>
 </ul>
 <p>The base package installs without any inference library. It can beautify,
 translate, render and verify subtitles on any platform that runs Python 3.12.</p>
@@ -792,6 +815,11 @@ translate, render and verify subtitles on any platform that runs Python 3.12.</p
 <td><code>apple</code></td>
 <td><code>mlx-whisper</code>, <code>mlx-audio</code>, <code>deepmultilingualpunctuation</code>, <code>torch</code>, <code>transformers</code>, <code>soundfile</code></td>
 <td><code>transcribe</code> and <code>batch</code></td>
+</tr>
+<tr>
+<td><code>native</code></td>
+<td>FullStop punctuation dependencies; audio.cpp itself is installed separately</td>
+<td>optional model punctuation on native hosts</td>
 </tr>
 <tr>
 <td><code>cluster</code></td>
@@ -836,8 +864,9 @@ enough:</p>
 <a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">  </span><span class="nt">"cluster_installed"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="p">}</span>
 </code></pre></div>
-<p><code>inference_installed</code> is <code>true</code> when <code>mlx_whisper</code>, <code>mlx_audio</code> and
-<code>deepmultilingualpunctuation</code> can be imported. <code>cluster_installed</code> is <code>true</code>
+<p><code>inference_installed</code> is <code>true</code> when <code>mlx_audio</code> and <code>deepmultilingualpunctuation</code> are installed.
+<code>mlx_available</code> checks the actual MLX runtime; <code>asr_backend</code> reports the
+automatic route, and <code>audiocpp_installed</code> checks the native executable. <code>cluster_installed</code> is <code>true</code>
 when the <code>diarize</code> package is installed.</p>
 </li>
 </ol>
@@ -853,7 +882,7 @@ when the <code>diarize</code> package is installed.</p>
 <tbody>
 <tr>
 <td>Speech recognition</td>
-<td><code>mlx-community/whisper-large-v3-turbo</code></td>
+<td><code>mlx-community/Qwen3-ASR-1.7B-8bit</code></td>
 </tr>
 <tr>
 <td>Diarization</td>
@@ -861,17 +890,37 @@ when the <code>diarize</code> package is installed.</p>
 </tr>
 <tr>
 <td>Punctuation</td>
-<td><code>oliverguhr/fullstop-punctuation-multilang-large</code></td>
+<td>Preserve Qwen punctuation (<code>auto</code> → <code>asr</code>); FullStop is optional</td>
 </tr>
 <tr>
-<td>Timestamp repair</td>
+<td>Word alignment</td>
 <td><code>mlx-community/Qwen3-ForcedAligner-0.6B-8bit</code></td>
 </tr>
 </tbody>
 </table>
-<p>The forced aligner is loaded only when a recording has collapsed or out-of-order
-word timestamps. Each model can be replaced with a flag; see
-<a href="../cli/#transcribe">Command reference</a>.</p>
+<p>The forced aligner runs on every Qwen speech chunk. Recognition vocabulary is
+forwarded to each chunk; word times are acoustic estimates, not interpolated
+chunk bounds. MLX weights download on first use. <code>vexy-subs models</code> shows the stack.</p>
+<h2 id="native-qwen-setup">Native Qwen setup<a class="headerlink" href="#native-qwen-setup" title="Permanent link">&para;</a></h2>
+<p>Build or install <a href="https://github.com/0xShug0/audio.cpp">audio.cpp</a>, with the
+<code>qwen3_asr</code>, <code>qwen3_forced_aligner</code> and, if required, <code>nemotron_3_diar</code> families.
+The adapter uses the documented 0.9.1-compatible CLI. Install models with the
+upstream manager, then set their actual paths:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>audiocpp_model_manager<span class="w"> </span>install<span class="w"> </span>qwen3_asr_1_7b_q8_0<span class="w"> </span>--models-dir<span class="w"> </span>models
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>audiocpp_model_manager<span class="w"> </span>install<span class="w"> </span>qwen3_forced_aligner_0_6b_q8_0<span class="w"> </span>--models-dir<span class="w"> </span>models
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>audiocpp_model_manager<span class="w"> </span>install<span class="w"> </span>nemotron_3_diar_bf16<span class="w"> </span>--models-dir<span class="w"> </span>models
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="nb">export</span><span class="w"> </span><span class="nv">VEXY_SUBS_QWEN_MODEL</span><span class="o">=</span>/absolute/path/to/qwen3-asr-1.7b-q8_0.gguf
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="nb">export</span><span class="w"> </span><span class="nv">VEXY_SUBS_QWEN_ALIGNER</span><span class="o">=</span>/absolute/path/to/qwen3-forced-aligner-0.6b-q8_0.gguf
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="nb">export</span><span class="w"> </span><span class="nv">VEXY_SUBS_NEMOTRON_MODEL</span><span class="o">=</span>/absolute/path/to/nemotron-3-diarization-bf16.gguf
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>vexy-subs<span class="w"> </span>transcribe<span class="w"> </span>talk.mp4<span class="w"> </span>--asr_backend<span class="o">=</span>audiocpp<span class="w"> </span>--diar_backend<span class="o">=</span>audiocpp
+</code></pre></div>
+<p>Install the base package for Qwen punctuation plus native diarization, <code>[cluster]</code>
+for CPU speaker clustering, and <code>[native]</code> only if you need model punctuation.
+Pass <code>--audiocpp_bin</code> or set <code>VEXY_SUBS_AUDIOCPP_BIN</code> if the executable is outside
+PATH. Native model flags override the environment. Model weights remain external;
+no private model workspace is required. Automatic ASR selection chooses MLX when
+available, otherwise native Qwen. Missing native prerequisites produce setup
+errors; inference errors do not trigger an unrelated ASR fallback.</p>
 <p>For English, beautification also uses NLTK's small averaged-perceptron
 part-of-speech tagger. Its weights download once into the user cache folder.</p>
 

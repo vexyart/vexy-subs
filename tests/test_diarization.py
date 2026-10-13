@@ -19,6 +19,7 @@ def detector(count):
 
 
 def test_default_preserves_continuous_nemotron_ids(tmp_path, monkeypatch):
+    monkeypatch.setattr("vexy_subs.qwen.mlx_available", lambda: True)
     monkeypatch.setitem(
         sys.modules, "mlx_audio.vad", N(load=lambda *a, **k: detector(2))
     )
@@ -30,6 +31,7 @@ def test_default_preserves_continuous_nemotron_ids(tmp_path, monkeypatch):
 def test_all_eight_slots_trigger_real_clustering_backend_contract(
     tmp_path, monkeypatch
 ):
+    monkeypatch.setattr("vexy_subs.qwen.mlx_available", lambda: True)
     monkeypatch.setitem(
         sys.modules, "mlx_audio.vad", N(load=lambda *a, **k: detector(8))
     )

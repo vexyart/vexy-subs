@@ -1,6 +1,19 @@
 <!-- this_file: CHANGELOG.md -->
 # Changelog
 
+## Unreleased
+- Use Qwen3-ASR 1.7B MLX as the primary recognizer, with automatic Qwen audio.cpp
+  selection when MLX is unavailable. Forward concise recognition vocabulary to
+  every bounded MLX chunk; retain an explicit Whisper cross-check route.
+- Attach acoustic Qwen forced alignment to recognised text, preserving punctuation,
+  spelling and numbers; reject lexical changes or invalid timelines.
+- Add direct native Qwen and continuous Nemotron adapters, configurable executable,
+  GGUF paths and compute backend, native cache fingerprints and batch forwarding.
+- Preserve Qwen punctuation by default; keep FullStop as an explicit alternative.
+  Retain existing audited local/optional LLM editing and speaker-coloured exports.
+- Exclude Voxtral, Granite and Kroko from recognition selections. Add `models`
+  and backend diagnostics, native installation guidance and integration tests.
+
 ## 1.0.3
 - Remove immediate English phrase restarts when punctuation restoration puts a
   period after an unfinished article, preserving the completed phrase's timing,

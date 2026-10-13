@@ -93,6 +93,8 @@ def apply_labels(words: list[Word], predictions: list, hints: str = "") -> None:
 
 def restore(words: list[Word], hints: str = "", model: str = MODEL) -> dict:
     """Run the maintained predictor with a Transformers-5-compatible pipeline."""
+    if model == "asr":
+        return {"model": "asr", "words": len(words), "preserved_asr_punctuation": True}
     import torch
     from deepmultilingualpunctuation import PunctuationModel
     from transformers import pipeline

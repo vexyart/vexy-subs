@@ -14,6 +14,7 @@ from vexy_subs.types import Turn, Word
 def test_pipeline_passes_prompt_then_colours_distinct_speakers_and_resumes(
     tmp_path, monkeypatch
 ):
+    monkeypatch.setattr("vexy_subs.qwen.mlx_available", lambda: True)
     video = tmp_path / "clip.wav"
     with wave.open(str(video), "wb") as wav:
         wav.setparams((1, 2, 16000, 0, "NONE", "not compressed"))

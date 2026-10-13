@@ -131,3 +131,32 @@ explicit in the private final report and public guidance. Private evidence is in
 requested work directory; no recordings or names were added to public source.
 
 Fresh baseline `./test.sh`: 96 passed, 90.41% coverage; Ruff clean.
+
+## Qwen production integration — 2026-10-13
+
+Baseline: 109 tests passed, 89.14% coverage, Ruff clean. Default remains Whisper; private workspace routing is preserved while direct Qwen MLX/native support is added. Authorised scope: primary Qwen ASR, native fallback, real forced alignment, existing best diarization and editorial stages; exclude Voxtral/Granite/Kroko from selectable recognition.
+
+Delivered direct Qwen3-ASR 1.7B MLX (compatible community 8-bit conversion) and
+Qwen audio.cpp adapters with actual forced alignment. Vocabulary reaches every
+chunk. Native recognition uses independent bounded requests in one loaded session:
+real testing found that upstream internal long-audio merging filters aligned words
+while retaining them in punctuated text. The package rejects such loss; batching
+avoids that merge. Native speaker IDs retain existing labels without double prefixes.
+Default punctuation preserves Qwen output; explicit FullStop and audited editing
+remain available. Added native model/binary fingerprints, automatic native Nemotron
+when configured, cluster fallback, model listing, diagnostics and batch flags.
+Rejected Voxtral/Granite/Kroko selection is tested, including workspace requests.
+
+Fresh final tests: 124 passed, 90.18% coverage; Ruff clean. A clean base-only wheel
+installation without MLX also passed 124 tests and actual automatic Qwen/native
+Nemotron inference, caption verification and cache resume outside the checkout.
+Real 180-second MLX and native pipelines both exported 40 matching SRT/VTT/ASS
+cues, two anonymous voices plus an unassigned style. One word is unassigned;
+four caption-rule violations and acoustic zero-duration words remain explicit
+review findings. This is integration evidence, not a claim of perfect timing or
+editorial conformance. No original corpus captions were overwritten.
+
+Strict docs build and wheel/sdist Twine checks passed; exact distributions contain
+both adapters and exclude private paths/media/weights. Updated the installed CLI
+from the checked wheel, preserving apple/cluster extras; installed source hashes
+match the worktree. Built development artifacts locally; no release/push was made.

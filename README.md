@@ -25,27 +25,46 @@ only `translate` and the optional LLM post-fix call an endpoint you configure.
 The base package can render manually edited timed words without model inference:
 `vexy-subs render edited.words.json subtitles/edited`.
 
-`--prompt_file` accepts a nonempty UTF-8 `.md` or `.txt` file. Free-form hints are
-forwarded to Whisper's initial prompt. Optional `Names:` and `Terms:` lines also
-preserve vocabulary casing during punctuation restoration:
-When those lines are present, their concise vocabulary is used as the recognition
-context instead of sending Markdown instructions or programme prose to Whisper.
+**Default stack:** Qwen3-ASR 1.7B (MLX 8-bit), Qwen3 ForcedAligner 0.6B,
+Nemotron diarization, preserved ASR punctuation and audited local editing.
+`--asr_backend=auto` uses MLX on supported Apple Silicon installations and Qwen
+through audio.cpp elsewhere. It never substitutes another ASR family after an
+inference failure. `vexy-subs models` lists the selected stack.
+
+For native inference, install audio.cpp separately, put `audiocpp_cli` on PATH,
+and configure user-owned GGUF paths:
+
+```bash
+export VEXY_SUBS_QWEN_MODEL=/models/qwen3-asr-1.7b-q8_0.gguf
+export VEXY_SUBS_QWEN_ALIGNER=/models/qwen3-forced-aligner-0.6b-q8_0.gguf
+export VEXY_SUBS_NEMOTRON_MODEL=/models/nemotron-3-diarization-bf16.gguf
+vexy-subs transcribe clip.mp4 --asr_backend=audiocpp --diar_backend=audiocpp
+```
+
+Use `VEXY_SUBS_AUDIOCPP_BIN` or `--audiocpp_bin` for a binary outside PATH.
+`--audiocpp_backend=auto` chooses Metal on Apple Silicon, otherwise CPU;
+CUDA, Vulkan and HIP are explicit choices for compatible builds. Alternatively,
+install `[cluster]` for CPU diarization. `[native]` adds optional FullStop
+punctuation; base/native caption generation needs no MLX installation.
+See the [native setup instructions](https://vexy.dev/vexy-subs/installation/).
+
+`--prompt_file` accepts a nonempty UTF-8 `.md` or `.txt` file. Use concise
+`Names:` and `Terms:` lines; their entries reach **every Qwen chunk**. Otherwise
+free-form hints reach Qwen directly. Hints do not establish speaker identity.
 
 ```text
 Terms: QuasarAPI, OpenType, Python.
-This talk discusses font shaping. Preserve the terminology when it is spoken.
 ```
 
-`--prompt` adds inline hints. `--language=en` is the default; pass an empty string
-for recognition language detection. FullStop punctuation supports English,
-German, French, Italian and Dutch; other languages need an appropriate
-`--punctuation_model`. A hint is recognition context, not a guaranteed replacement
-or instruction following mechanism. Whisper has a finite prompt context. With
-the current runtime/settings, initial hints apply to the first decoding window rather than persisting throughout a
-long recording. Recognition hints are not editorial instructions: punctuation
-and conservative cleanup run as separate stages. `--asr_model` accepts compatible
-Whisper checkpoints, not arbitrary ASR families. See the
-[model and timing notes](https://vexy.dev/vexy-subs/transcription/#readable-transcripts-and-model-choice).
+`--prompt` adds inline hints. `--language=en` is the default. Qwen word times
+come from acoustic forced alignment, not proportional interpolation or chunk
+bounds. Names, quantities and technical instructions still need review.
+`--punctuation_model=auto` preserves Qwen punctuation; select
+`oliverguhr/fullstop-punctuation-multilang-large` to restore it with FullStop.
+The default conservative editing pass removes supported disfluencies and applies
+typography, with recorded deletions. Use `--beautify=False` for verbatim output.
+`--asr_backend=whisper` retains an explicit MLX cross-check route. Voxtral,
+Granite and Kroko are excluded from selectable recognition.
 
 Outputs are `.srt`, `.vtt`, `.ass`, `.words.json` and `.vexy-subs.json`.
 ASS stores named per-speaker colour styles. WebVTT stores voice spans, cue
@@ -53,7 +72,7 @@ classes and CSS `STYLE` rules. SRT uses `<font color>` tags; players may ignore
 them. Use ASS for reliable desktop styling and WebVTT for browser playback.
 
 The pipeline recognizes timed words, diarizes a continuous recording, attributes
-words to speaker activity, restores punctuation one label per lexical word,
+words to speaker activity, preserves ASR punctuation or restores it with a model,
 then detects language, removes disfluencies and lays out balanced captions.
 Normal cues have at most two 42-character lines and seven seconds;
 indivisible long words are retained rather than rewritten. Raw recognition and

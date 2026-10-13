@@ -878,6 +878,7 @@
   
 
 
+<!-- this_file: src_docs/md/cli.md -->
 <h1 id="command-reference">Command reference<a class="headerlink" href="#command-reference" title="Permanent link">&para;</a></h1>
 <p><code>vexy-subs</code> is a <a href="https://github.com/google/python-fire">Fire</a> command-line tool.
 Flags use underscores, as in <code>--output_dir</code>, and Boolean flags take an explicit
@@ -922,6 +923,10 @@ progress goes to standard error. Add <code>--help</code> after a command to prin
 <td>manage LLM providers and profiles</td>
 </tr>
 <tr>
+<td><code>models</code></td>
+<td>list selected pipeline models without loading them</td>
+</tr>
+<tr>
 <td><code>doctor</code></td>
 <td>report local prerequisites</td>
 </tr>
@@ -964,9 +969,24 @@ progress goes to standard error. Add <code>--help</code> after a command to prin
 <td>recognition language; <code>""</code> detects it</td>
 </tr>
 <tr>
+<td><code>--asr_backend</code></td>
+<td><code>auto</code></td>
+<td>MLX Qwen when available, otherwise native Qwen; explicit <code>mlx</code>, <code>audiocpp</code>, <code>whisper</code>, legacy <code>workspace</code></td>
+</tr>
+<tr>
 <td><code>--asr_model</code></td>
-<td><code>mlx-community/whisper-large-v3-turbo</code></td>
-<td>Whisper model</td>
+<td><code>mlx-community/Qwen3-ASR-1.7B-8bit</code></td>
+<td>Qwen MLX repo/path or native GGUF path</td>
+</tr>
+<tr>
+<td><code>--audiocpp_bin</code></td>
+<td>PATH or environment</td>
+<td>native executable</td>
+</tr>
+<tr>
+<td><code>--audiocpp_backend</code></td>
+<td><code>auto</code></td>
+<td>Metal on Apple Silicon, otherwise CPU; explicit <code>cuda</code>, <code>vulkan</code>, <code>hip</code></td>
 </tr>
 <tr>
 <td><code>--diar_model</code></td>
@@ -975,18 +995,18 @@ progress goes to standard error. Add <code>--help</code> after a command to prin
 </tr>
 <tr>
 <td><code>--punctuation_model</code></td>
-<td><code>oliverguhr/fullstop-punctuation-multilang-large</code></td>
-<td>punctuation model</td>
+<td><code>auto</code></td>
+<td>retain Qwen punctuation; FullStop for Whisper; explicit <code>asr</code> or checkpoint</td>
 </tr>
 <tr>
 <td><code>--alignment_model</code></td>
 <td><code>mlx-community/Qwen3-ForcedAligner-0.6B-8bit</code></td>
-<td>forced aligner for timestamp repair</td>
+<td>acoustic word aligner; native GGUF path on audio.cpp</td>
 </tr>
 <tr>
 <td><code>--diar_backend</code></td>
 <td><code>auto</code></td>
-<td><code>auto</code>, <code>nemotron</code> or <code>cluster</code></td>
+<td><code>auto</code>, <code>nemotron</code>, <code>cluster</code>, <code>audiocpp</code> or legacy <code>workspace</code></td>
 </tr>
 <tr>
 <td><code>--turns_file</code></td>
@@ -1073,6 +1093,21 @@ progress goes to standard error. Add <code>--help</code> after a command to prin
 <td><code>--prompt_dir</code></td>
 <td>empty</td>
 <td>folder with one <code>&lt;stem&gt;.md</code> or <code>&lt;stem&gt;.txt</code> per video</td>
+</tr>
+<tr>
+<td><code>--asr_backend</code>, <code>--asr_model</code></td>
+<td><code>auto</code>, automatic model</td>
+<td>as for <code>transcribe</code></td>
+</tr>
+<tr>
+<td><code>--alignment_model</code>, <code>--punctuation_model</code>, <code>--diar_model</code></td>
+<td>automatic</td>
+<td>model overrides</td>
+</tr>
+<tr>
+<td><code>--audiocpp_bin</code>, <code>--audiocpp_backend</code></td>
+<td>automatic</td>
+<td>native engine options</td>
 </tr>
 <tr>
 <td><code>--pattern</code></td>

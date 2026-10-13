@@ -981,29 +981,23 @@
 <!-- this_file: src_docs/md/transcription.md -->
 <h1 id="transcription">Transcription<a class="headerlink" href="#transcription" title="Permanent link">&para;</a></h1>
 <p><code>transcribe</code> turns one video into speaker-coloured subtitles. <code>batch</code> does the
-same for every matching video in a folder. Both need the <code>apple</code> extra.</p>
+same for every matching video in a folder. Use the <code>apple</code> extra for MLX, or configure native Qwen as described in <a href="../installation/#native-qwen-setup">Installation</a>.</p>
 <h2 id="recognition-hints">Recognition hints<a class="headerlink" href="#recognition-hints" title="Permanent link">&para;</a></h2>
 <p>Hints tell the recogniser which names and terms to expect.</p>
 <ul>
 <li><code>--prompt_file</code> takes a non-empty UTF-8 file with the extension <code>.md</code> or <code>.txt</code>.</li>
 <li><code>--prompt</code> adds hints inline. If you give both, the inline text comes first.</li>
 </ul>
-<p>The whole hint text is passed to Whisper's initial prompt. If the text contains
-lines that start with <code>Names:</code> or <code>Terms:</code>, only the comma-separated entries on
-those lines are passed to Whisper instead, so Markdown instructions or programme
-prose do not reach the recogniser. The same entries also keep their casing when
-punctuation is restored.</p>
+<p>When <code>Names:</code> or <code>Terms:</code> lines are present, Qwen receives their concise
+comma-separated glossary with an instruction to use those spellings only when
+spoken. Otherwise it receives the free-form hint text. Context reaches every
+30-second MLX chunk and every native Qwen request. Hints do not identify voices.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Names: Anna Kowalska, Ben Okafor.
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>Terms: QuasarAPI, OpenType, Python.
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>This talk discusses font shaping.
 </code></pre></div>
-<p>With this file, Whisper receives <code>Anna Kowalska, Ben Okafor, QuasarAPI,
-OpenType, Python</code>.</p>
-<p>A hint is context for recognition. It does not guarantee a replacement, and
-Whisper's prompt context is finite. With the supported mlx-whisper runtime and
-<code>condition_on_previous_text=False</code>, the initial prompt applies to the first
-decoding window; it is not persistent glossary context for a long recording.
-The receipt records the hint file's name and SHA-256, not its contents.</p>
+<p>Hints can improve or degrade a term. Check technical names, quantities and commands.
+The receipt stores the hint filename and SHA-256. Raw local recognition artifacts
+contain the resulting text; no remote speech service is used.</p>
 <h2 id="readable-transcripts-and-model-choice">Readable transcripts and model choice<a class="headerlink" href="#readable-transcripts-and-model-choice" title="Permanent link">&para;</a></h2>
 <p>Recognition hints provide spelling context; instructions such as “remove fillers”
 do not make an ASR model an editor. <code>transcribe</code> already runs punctuation restoration
@@ -1016,23 +1010,29 @@ puts a period after an unfinished article (for example, “That’s a. That’s 
 lesson”). Complete repeated sentences, questions, pauses and speaker handoffs
 remain protected. This produces readable captions without free paraphrasing or
 summarization; punctuation predictions still need editorial review.</p>
-<p>A local comparison of Whisper turbo, Parakeet Ultra and Qwen3-ASR 1.7B found that
-metadata prompts did not improve every excerpt, and an editorial instruction to
-Qwen left repetitions intact. Recognition speed alone does not establish better
-technical vocabulary or editorial quality. Whisper remains the supported ASR
-backend; <code>--asr_model</code> selects a compatible Whisper checkpoint, not another family.</p>
-<p>Timing contracts also differ. Whisper supplies word estimates. Parakeet's tested
-MLX runtime supplies sentence intervals and subword tokens. Qwen's tested MLX
-runtime supplies audio-chunk bounds, which cannot be treated as sentence timings.
-Qwen offers a separate forced aligner, but it must be exercised before that route
-can deliver aligned captions. An alignment estimate is not a native word timestamp.</p>
-<p>Implementation references: <a href="https://github.com/ml-explore/mlx-examples/tree/main/whisper">MLX Whisper</a>,
-<a href="https://github.com/senstella/parakeet-mlx">Parakeet MLX</a>, and
+<p><strong>Default recognition:</strong> Qwen3-ASR 1.7B MLX 8-bit. <code>--asr_backend=auto</code>
+selects Qwen audio.cpp when MLX is unavailable. The package uses a compatible
+community MLX conversion directly; the benchmark's private tensor-layout adapter
+is not required. <code>--asr_model</code> selects a Qwen repository/local directory on MLX
+or a native GGUF path on audio.cpp. Voxtral, Granite and Kroko are excluded.
+<code>--asr_backend=whisper</code> is an explicit MLX cross-check.</p>
+<p><strong>Timing:</strong> both Qwen routes run the separate acoustic forced aligner. Chunk
+intervals are never used as sentence or proportional word timings. The package
+matches aligned lexical content to the recognised text and keeps its spelling,
+punctuation and numbers. Alignment changes or invalid bounds stop the run.
+Collapsed acoustic timestamps are recorded and handled as ambiguous timed words;
+full playback review is still required.</p>
+<p><strong>Punctuation:</strong> <code>--punctuation_model=auto</code> preserves Qwen's original punctuation.
+Whisper uses FullStop under <code>auto</code>. To override, pass <code>asr</code> or a compatible
+FullStop checkpoint. The benchmark found punctuation restoration could introduce
+bad commas and fragments; an intelligent transcript needs separate editing.</p>
+<p>Sources: <a href="https://github.com/Blaizzy/mlx-audio/tree/main/mlx_audio/stt/models/qwen3_asr">MLX Qwen and forced alignment</a>,
+<a href="https://github.com/0xShug0/audio.cpp/blob/main/docs/models/qwen3_asr.md">native Qwen</a>,
 <a href="https://github.com/QwenLM/Qwen3-ASR">Qwen3-ASR</a>.</p>
 <h2 id="language">Language<a class="headerlink" href="#language" title="Permanent link">&para;</a></h2>
 <p><code>--language</code> defaults to <code>en</code>. Pass an empty string, <code>--language=""</code>, to let
-Whisper detect the language.</p>
-<p>The default punctuation model supports English, German, French, Italian and
+Qwen detect the language; English is used for alignment tokenisation when no language is supplied.</p>
+<p>The optional FullStop punctuation model supports English, German, French, Italian and
 Dutch. For other languages, pass a suitable model with <code>--punctuation_model</code>.</p>
 <h2 id="speakers">Speakers<a class="headerlink" href="#speakers" title="Permanent link">&para;</a></h2>
 <h3 id="diarization-back-ends">Diarization back-ends<a class="headerlink" href="#diarization-back-ends" title="Permanent link">&para;</a></h3>
@@ -1046,7 +1046,11 @@ Dutch. For other languages, pass a suitable model with <code>--punctuation_model
 <tbody>
 <tr>
 <td><code>auto</code> (default)</td>
-<td>Nemotron; switches to <code>cluster</code> when all eight Nemotron slots are filled</td>
+<td>MLX Nemotron when available; configured native Nemotron or CPU clustering otherwise; switches to clustering when eight slots are filled</td>
+</tr>
+<tr>
+<td><code>audiocpp</code></td>
+<td>Continuous native Nemotron using configured GGUF weights; clusters when eight slots are filled</td>
 </tr>
 <tr>
 <td><code>nemotron</code></td>
@@ -1143,11 +1147,11 @@ on every cue.</p>
 <tbody>
 <tr>
 <td><code>asr.json</code></td>
-<td>recognised words and the raw Whisper result</td>
+<td>recognised words, original Qwen text and alignment provenance</td>
 </tr>
 <tr>
 <td><code>alignment.json</code></td>
-<td>words after timestamp repair</td>
+<td>forced-aligned words (or optional Whisper timing repair)</td>
 </tr>
 <tr>
 <td><code>diarization.json</code></td>
@@ -1182,8 +1186,9 @@ regenerate. Caption files that have no receipt are never overwritten without
   the failures are reported together at the end.</li>
 </ul>
 <p><code>batch</code> forwards <code>--force</code>, <code>--language</code>, the beautification options, <code>--llm</code>,
-<code>--strict</code> and <code>--fps</code>. It forwards <code>--diar_backend</code> and <code>--max_speakers</code> only
-when <code>--diar_backend</code> is not <code>auto</code>.</p>
+<code>--strict</code> and <code>--fps</code>. It forwards <code>--diar_backend</code> when explicit and always forwards a non-default
+<code>--max_speakers</code>, including with automatic diarization. It also forwards ASR/model, alignment,
+punctuation and native executable/compute flags.</p>
 <h2 id="privacy">Privacy<a class="headerlink" href="#privacy" title="Permanent link">&para;</a></h2>
 <p>Recordings, hint files, personal names, models and run artefacts are your
 private data. They are excluded from the package's source and wheel builds,

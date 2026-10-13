@@ -240,3 +240,4 @@ prompts/
 .venv/
 site/
 node_modules/
+_private/

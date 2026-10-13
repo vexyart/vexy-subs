@@ -33,3 +33,11 @@ punctuated-article restart fix and documented ASR prompt/timing limits. Released
 v1.0.3 from a clean tagged checkout; exact distributions passed content checks,
 clean installation and remote PyPI hash verification. Final tests: 106 passed,
 90.42% coverage, Ruff clean; strict documentation build passed.
+
+## Qwen production integration (complete)
+
+1. Default to Qwen3-ASR 1.7B MLX with vocabulary, Qwen audio.cpp on hosts without MLX.
+2. Preserve recognised text through Qwen forced alignment; configure native models/binary without private paths.
+3. Connect Nemotron diarization and cluster fallback, punctuation, audited editing and exports.
+4. Remove rejected recognition families from package choices; preserve historical private evidence.
+5. Verify failure/fallback/cache contracts, real MLX/native pipelines, docs and clean distributions.

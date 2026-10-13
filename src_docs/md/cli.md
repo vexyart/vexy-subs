@@ -1,3 +1,4 @@
+<!-- this_file: src_docs/md/cli.md -->
 # Command reference
 
 `vexy-subs` is a [Fire](https://github.com/google/python-fire) command-line tool.
@@ -18,6 +19,7 @@ vexy-subs transcribe --help
 | `translate` | translate a subtitle file with an LLM |
 | `verify` | check completed subtitle sets against their receipts |
 | `llm` | manage LLM providers and profiles |
+| `models` | list selected pipeline models without loading them |
 | `doctor` | report local prerequisites |
 | `version` | print the installed package version |
 
@@ -33,11 +35,14 @@ vexy-subs transcribe VIDEO [flags]
 | `--prompt_file` | empty | UTF-8 `.md` or `.txt` hint file |
 | `--prompt` | empty | inline hints |
 | `--language` | `en` | recognition language; `""` detects it |
-| `--asr_model` | `mlx-community/whisper-large-v3-turbo` | Whisper model |
+| `--asr_backend` | `auto` | MLX Qwen when available, otherwise native Qwen; explicit `mlx`, `audiocpp`, `whisper`, legacy `workspace` |
+| `--asr_model` | `mlx-community/Qwen3-ASR-1.7B-8bit` | Qwen MLX repo/path or native GGUF path |
+| `--audiocpp_bin` | PATH or environment | native executable |
+| `--audiocpp_backend` | `auto` | Metal on Apple Silicon, otherwise CPU; explicit `cuda`, `vulkan`, `hip` |
 | `--diar_model` | `mlx-community/Nemotron-3-Diarization-8bit` | Nemotron diarization model |
-| `--punctuation_model` | `oliverguhr/fullstop-punctuation-multilang-large` | punctuation model |
-| `--alignment_model` | `mlx-community/Qwen3-ForcedAligner-0.6B-8bit` | forced aligner for timestamp repair |
-| `--diar_backend` | `auto` | `auto`, `nemotron` or `cluster` |
+| `--punctuation_model` | `auto` | retain Qwen punctuation; FullStop for Whisper; explicit `asr` or checkpoint |
+| `--alignment_model` | `mlx-community/Qwen3-ForcedAligner-0.6B-8bit` | acoustic word aligner; native GGUF path on audio.cpp |
+| `--diar_backend` | `auto` | `auto`, `nemotron`, `cluster`, `audiocpp` or legacy `workspace` |
 | `--turns_file` | empty | verified speaker turns instead of diarization |
 | `--max_speakers` | `40` | upper limit for `cluster` |
 | `--speaker_map` | empty | JSON object mapping speaker IDs to names |
@@ -65,6 +70,9 @@ vexy-subs batch [FOLDER] [flags]
 | --- | --- | --- |
 | `--output_dir` | each video's folder | where outputs go |
 | `--prompt_dir` | empty | folder with one `<stem>.md` or `<stem>.txt` per video |
+| `--asr_backend`, `--asr_model` | `auto`, automatic model | as for `transcribe` |
+| `--alignment_model`, `--punctuation_model`, `--diar_model` | automatic | model overrides |
+| `--audiocpp_bin`, `--audiocpp_backend` | automatic | native engine options |
 | `--pattern` | `*.mp4` | which files to process |
 | `--force` | `False` | regenerate existing outputs |
 | `--language` | `en` | recognition language |

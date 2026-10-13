@@ -3,13 +3,14 @@
 
 import hashlib
 import json
+import os
 import sys
 import tempfile
 import time
 from dataclasses import asdict
 from pathlib import Path
 
-from . import __version__
+from . import __version__, audiocpp, qwen, workspace
 from .alignment import MODEL as ALIGNER
 from .alignment import repair
 from .beautify import beautify as beautify_words
@@ -17,7 +18,7 @@ from .beautify_config import load_config
 from .cues import segment
 from .formats import verify, write
 from .hints import read_prompt
-from .inference import ASR, DIAR, diarize, transcribe
+from .inference import ASR, DIAR, WHISPER, diarize, transcribe, whisper
 from .io import decode, probe, save, sha256, stage
 from .postprocess import frame_rate
 from .punctuation import MODEL, restore
@@ -35,7 +36,7 @@ def run(
     language: str = "en",
     asr_model: str = ASR,
     diar_model: str = DIAR,
-    punctuation_model: str = MODEL,
+    punctuation_model: str = "auto",
     alignment_model: str = ALIGNER,
     diar_backend: str = "auto",
     turns_file: str = "",
@@ -50,14 +51,51 @@ def run(
     llm: str = "",
     fps: float = 0,
     strict: bool = False,
+    asr_backend: str = "auto",
+    model_workspace: str = "",
+    audiocpp_bin: str = "",
+    audiocpp_backend: str = "auto",
 ) -> dict:
     """Generate real speaker colours; retain recoverable local stage artifacts."""
     source = Path(video).resolve()
     duration = probe(source)
     hints, hint_receipt = read_prompt(prompt_file, prompt)
     names = json.loads(Path(speaker_map).read_text()) if speaker_map else {}
-    if diar_backend not in {"auto", "nemotron", "cluster"} or max_speakers < 1:
+    qwen.check_model(asr_model)
+    asr_backend = qwen.select_backend(asr_backend)
+    if (
+        diar_backend == "auto"
+        and not qwen.mlx_available()
+        and os.getenv("VEXY_SUBS_NEMOTRON_MODEL")
+    ):
+        diar_backend = "audiocpp"
+    if (
+        diar_backend not in {"auto", "nemotron", "cluster", "workspace", "audiocpp"}
+        or max_speakers < 1
+    ):
         raise ValueError("Require a supported diar_backend and positive max_speakers")
+    external = asr_backend == "workspace" or diar_backend == "workspace"
+    if external:
+        model_workspace = str(workspace.root_path(model_workspace))
+    if asr_backend == "workspace" and asr_model == ASR:
+        asr_model = "issue301-majentik-Qwen3-ASR-1.7B-MLX-8bit"
+    if diar_backend == "workspace" and diar_model == DIAR:
+        diar_model = "nemotron_3_diar"
+    if asr_backend == "whisper" and asr_model == ASR:
+        asr_model = WHISPER
+    if punctuation_model == "auto":
+        punctuation_model = MODEL if asr_backend == "whisper" else "asr"
+    native = asr_backend == "audiocpp" or diar_backend == "audiocpp"
+    if native:
+        audiocpp_bin = audiocpp.binary_path(audiocpp_bin)
+        audiocpp_backend = audiocpp.backend_name(audiocpp_backend)
+    if asr_backend == "audiocpp":
+        asr_model = audiocpp.model_path(asr_model, ASR, "VEXY_SUBS_QWEN_MODEL")
+        alignment_model = audiocpp.model_path(
+            alignment_model, ALIGNER, "VEXY_SUBS_QWEN_ALIGNER"
+        )
+    if diar_backend == "audiocpp":
+        diar_model = audiocpp.model_path(diar_model, DIAR, "VEXY_SUBS_NEMOTRON_MODEL")
     if not isinstance(names, dict) or not all(
         isinstance(v, str) and v.strip() for v in names.values()
     ):
@@ -74,13 +112,32 @@ def run(
         "prompt": hint_receipt,
         "language": language,
         "asr_model": asr_model,
+        "asr_backend": asr_backend,
         "diar_model": diar_model,
         "punctuation_model": punctuation_model,
         "alignment_model": alignment_model,
         "speaker_names": names,
-        "recognition_context": "lexicon-v1",
+        "recognition_context": "qwen-lexicon-v2",
         "punctuation_policy": 3,
     }
+    if external:
+        options.update(
+            model_workspace=model_workspace,
+            workspace_signature=workspace.signature(model_workspace),
+        )
+    if native:
+        options.update(
+            audiocpp_backend=audiocpp_backend,
+            native_identity=audiocpp.identity(
+                audiocpp_bin,
+                asr_model if asr_backend == "audiocpp" else diar_model,
+                alignment_model if asr_backend == "audiocpp" else diar_model,
+            ),
+        )
+        if diar_backend == "audiocpp":
+            options["native_diarization_identity"] = audiocpp.identity(
+                audiocpp_bin, diar_model, diar_model
+            )
     if diar_backend not in {"auto", "nemotron"}:
         options.update(diar_backend=diar_backend, max_speakers=max_speakers)
     elif diar_backend == "auto" and max_speakers != 40:
@@ -139,13 +196,37 @@ def run(
 
         def asr_stage() -> dict:
             print(f"ASR {source.name}", file=sys.stderr, flush=True)
-            words, raw = transcribe(wav, hints, language, asr_model)
+            if asr_backend == "workspace":
+                words, raw = workspace.transcribe(
+                    wav, hints, language, asr_model, model_workspace
+                )
+            elif asr_backend == "audiocpp":
+                words, raw = audiocpp.transcribe(
+                    wav,
+                    hints,
+                    language,
+                    asr_model,
+                    alignment_model,
+                    audiocpp_bin,
+                    audiocpp_backend,
+                )
+            elif asr_backend == "whisper":
+                words, raw = whisper(wav, hints, language, asr_model)
+            else:
+                words, raw = transcribe(
+                    wav, hints, language, asr_model, alignment_model
+                )
             return {"words": [asdict(w) for w in words], "raw": raw}
 
         base = stage(work / "asr.json", inference_key, asr_stage)
         words = [Word(**w) for w in base["words"]]
 
         def alignment_stage() -> dict:
+            if "alignment" in base["raw"]:
+                return {
+                    "words": [asdict(w) for w in words],
+                    "info": base["raw"]["alignment"],
+                }
             info = repair(
                 wav,
                 words,
@@ -161,6 +242,15 @@ def run(
             print(f"DIARIZATION {source.name}", file=sys.stderr, flush=True)
             if turns_file:
                 return json.loads(Path(turns_file).read_text())
+            if diar_backend == "workspace":
+                return workspace.diarize(wav, diar_model, model_workspace)
+            if diar_backend == "audiocpp":
+                _, raw = audiocpp.diarize(
+                    wav, diar_model, audiocpp_bin, audiocpp_backend
+                )
+                if len({t["speaker"] for t in raw["turns"]}) >= 8:
+                    _, raw = diarize(wav, DIAR, "cluster", max_speakers)
+                return raw
             _, raw = diarize(wav, diar_model, diar_backend, max_speakers)
             return raw
 

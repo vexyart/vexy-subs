@@ -17,3 +17,8 @@
 - [x] Issue 201: extract and run Whisper/Parakeet on the requested middle excerpt.
 - [x] Issue 201: complete prompted/intelligent model comparison and final report.
 - [x] Issue 201: incorporate measured findings and publish verified new release.
+
+- [x] Default Qwen MLX and automatic Qwen audio.cpp fallback.
+- [x] Wire real word alignment and portable diarization into caption generation.
+- [x] Exclude rejected ASR families and document installation/model configuration.
+- [x] Verify regression tests, real routes, documentation and distributions.
