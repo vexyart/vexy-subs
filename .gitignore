@@ -235,3 +235,8 @@ __version__.py
 *.work/
 private/
 prompts/
+
+# Tooling
+.venv/
+site/
+node_modules/

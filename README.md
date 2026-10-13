@@ -1,6 +1,8 @@
 <!-- this_file: README.md -->
 # vexy-subs
 
+**Documentation:** https://vexy.dev/vexy-subs/
+
 Generate local video subtitles with a consistent colour for each diarized voice,
 sentence punctuation, and your own recognition vocabulary.
 
@@ -256,20 +258,25 @@ Rules are based on Netflix's [general requirements](https://partnerhelp.netflixs
 and [Polish](https://partnerhelp.netflixstudios.com/hc/en-us/articles/216787928-Polish-Timed-Text-Style-Guide)
 style guides, consulted on 2026-10-12.
 
+## Development
+
 ```bash
-./test.sh
-./build.sh      # tests, uv build, twine check
-./publish.sh    # tag, build, uv publish to PyPI
+./test.sh                 # pytest with coverage, then ruff
+./build.sh                # docs into docs/, then uv build and twine check
+./build.sh docs           # documentation only (src_docs/build.sh)
+./build.sh package        # package only
+./publish.sh              # gitnextver tag, build, uv publish to PyPI
 ```
 
 Versions come from git tags through hatch-vcs: tag releases with
 `uvx gitnextver`. Untagged commits build as development versions with a local
 segment, which PyPI rejects. The generated `src/vexy_subs/__version__.py` is ignored by git.
 
-`./publish.sh` runs the tests, then `uvx gitnextver`, which commits all
-changes, creates the next `vX.Y.Z` tag (`v1.0.0` when none exists) and pushes.
-It then builds and runs `uv publish`. A rerun on a clean, already tagged HEAD
-skips gitnextver.
+`./publish.sh` runs `uvx gitnextver`, which commits all changes, creates the
+next `vX.Y.Z` tag and pushes. It stops if HEAD carries no such tag, then builds
+the package and runs `uv publish`. It does not run the tests, so run
+`./test.sh` first. The documentation source is in `src_docs/md/`;
+`src_docs/build.sh` builds it into `docs/`, which GitHub Pages serves.
 
 Implementation sources: [MLX Whisper](https://github.com/ml-explore/mlx-examples/tree/main/whisper),
 [Nemotron diarization](https://github.com/Blaizzy/mlx-audio/tree/main/mlx_audio/vad/models/nemotron_diarization),
