@@ -118,8 +118,16 @@ Added failing tests first, then extended existing phrase detection narrowly;
 completed phrases retain their original timing. Complete sentences, questions,
 pauses and speaker handoffs remain protected. Policy 8 refreshes editorial
 receipts without invalidating inference caches. Public guidance now describes
-initial-prompt limits, editorial stages and model timing contracts. Release gates
-and publication are in progress. Private evidence is in the
+initial-prompt limits, editorial stages and model timing contracts. Final direct cleanup and code/spec review passed. Released v1.0.3 from a clean
+tagged checkout, preserving unrelated pre-existing worktree state. Exact wheel
+and source archive passed Twine and privacy checks. Clean base-only install
+verified version 1.0.3, the restart fix, retained timing and policy 8. Published
+both artifacts to PyPI and GitHub; independent downloads from PyPI match local
+SHA-256 hashes. Documentation and Pages workflows succeeded.
+
+Final verification: 106 passed, 90.42% coverage, Ruff clean; strict documentation
+build passed. Native word/chunk timing and qualitative editorial limits remain
+explicit in the private final report and public guidance. Private evidence is in the
 requested work directory; no recordings or names were added to public source.
 
 Fresh baseline `./test.sh`: 96 passed, 90.41% coverage; Ruff clean.

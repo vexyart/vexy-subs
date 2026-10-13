@@ -16,4 +16,4 @@
 - [x] Issue 201: create adjacent source-grounded private recording metadata.
 - [x] Issue 201: extract and run Whisper/Parakeet on the requested middle excerpt.
 - [x] Issue 201: complete prompted/intelligent model comparison and final report.
-- [ ] Issue 201: incorporate measured findings and publish verified new release.
+- [x] Issue 201: incorporate measured findings and publish verified new release.

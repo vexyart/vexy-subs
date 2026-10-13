@@ -25,12 +25,11 @@ phrase-restart removal, sentence/response punctuation repair and stronger phrase
 boundaries. Verified all active corpus sets and delivery mirrors directly.
 
 
-## Issue 201 follow-up (active)
+## Issue 201 follow-up (complete)
 
-Complete controlled prompted/unprompted/intelligent transcription comparisons on
-the same 180-second middle excerpt, separating native word/sentence timings from
-chunk bounds and aligned estimates. Inspect raw/edit outputs and technical-term
-recognition; prior captions are a comparison source, not an independent gold
-transcript. Write the final report in the requested private `.work` directory.
-Integrate measured improvements into the package, document model limitations,
-rerun tests and distribution checks, and publish the requested new release.
+Delivered adjacent metadata for the private recordings, the controlled middle
+excerpt comparison, and a final private report. Integrated the observed
+punctuated-article restart fix and documented ASR prompt/timing limits. Released
+v1.0.3 from a clean tagged checkout; exact distributions passed content checks,
+clean installation and remote PyPI hash verification. Final tests: 106 passed,
+90.42% coverage, Ruff clean; strict documentation build passed.
