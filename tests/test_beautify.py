@@ -277,6 +277,72 @@ def test_marked_phrase_restarts_are_removed_but_emphasis_survives():
     assert len(clean_words(raw, "en")[0]) == 4
 
 
+@pytest.mark.parametrize("article", ["a", "an", "the"])
+def test_article_fragment_restart_when_model_adds_period_then_keeps_completion(article):
+    from vexy_subs.editorial import discourse
+
+    raw = [
+        Word(t, i * 0.2, i * 0.2 + 0.18, "a")
+        for i, t in enumerate(
+            ["Now,", "That's", article + ".", "that's", article, "lesson."]
+        )
+    ]
+    original = [asdict(w) for w in raw]
+    cleaned, edits = discourse(raw)
+    assert [w.text for w in cleaned] == ["Now,", "that's", article, "lesson."], (
+        "A model period after an unfinished article must not preserve a restart"
+    )
+    assert cleaned[1].start == raw[3].start, "Keep the completed phrase's timing"
+    assert [e["reason"] for e in edits] == ["phrase_restart"] * 2
+    assert [asdict(w) for w in raw] == original, "Preserve original recognition"
+
+
+@pytest.mark.parametrize(
+    "boundary",
+    [
+        "sentence",
+        "question",
+        "speaker",
+        "pause",
+        "unfinished",
+        "completion_speaker",
+        "completion_pause",
+    ],
+)
+def test_phrase_restart_when_boundary_is_meaningful_then_retains_repetition(boundary):
+    from vexy_subs.editorial import discourse
+
+    tokens = ["That's", "good.", "That's", "good."]
+    if boundary != "sentence":
+        tokens = [
+            "That's",
+            "a?" if boundary == "question" else "a.",
+            "that's",
+            "a",
+            "lesson.",
+        ]
+    raw = [Word(t, i * 0.2, i * 0.2 + 0.18, "a") for i, t in enumerate(tokens)]
+    if boundary == "speaker":
+        for w in raw[2:]:
+            w.speaker = "b"
+    if boundary == "pause":
+        for w in raw[2:]:
+            w.start += 1
+            w.end += 1
+    if boundary == "unfinished":
+        raw = raw[:-1]
+    if boundary == "completion_speaker":
+        raw[-1].speaker = "b"
+    if boundary == "completion_pause":
+        raw[-1].start += 1
+        raw[-1].end += 1
+    cleaned, edits = discourse(raw)
+    assert [asdict(w) for w in cleaned] == [asdict(w) for w in raw], (
+        "Complete utterances, questions, speaker changes and pauses are not restarts"
+    )
+    assert not edits, "No deletion should be recorded for meaningful repetition"
+
+
 def test_frame_rounding_preserves_word_ends_within_two_frames():
     from vexy_subs.beautify import retime
     from vexy_subs.types import Cue

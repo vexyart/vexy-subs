@@ -23,3 +23,14 @@ records. Automatic numeric checks are separate from full editorial certification
 English editorial refinement delivered: context-sensitive discourse padding and
 phrase-restart removal, sentence/response punctuation repair and stronger phrase
 boundaries. Verified all active corpus sets and delivery mirrors directly.
+
+
+## Issue 201 follow-up (active)
+
+Complete controlled prompted/unprompted/intelligent transcription comparisons on
+the same 180-second middle excerpt, separating native word/sentence timings from
+chunk bounds and aligned estimates. Inspect raw/edit outputs and technical-term
+recognition; prior captions are a comparison source, not an independent gold
+transcript. Write the final report in the requested private `.work` directory.
+Integrate measured improvements into the package, document model limitations,
+rerun tests and distribution checks, and publish the requested new release.

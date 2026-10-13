@@ -12,3 +12,8 @@
 - [x] Process all active local subtitle sets and record unresolved editorial cases.
 - [x] Strengthen English discourse cleanup, sentence casing and phrase boundaries;
   verify active corpus text and delivery mirrors against preserved originals.
+
+- [x] Issue 201: create adjacent source-grounded private recording metadata.
+- [x] Issue 201: extract and run Whisper/Parakeet on the requested middle excerpt.
+- [x] Issue 201: complete prompted/intelligent model comparison and final report.
+- [ ] Issue 201: incorporate measured findings and publish verified new release.

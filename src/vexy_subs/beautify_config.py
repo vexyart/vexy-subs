@@ -25,7 +25,7 @@ class Config:
     def receipt(self) -> dict:
         """Public settings only: never persist environment values or API keys."""
         return {
-            "policy": 7,
+            "policy": 8,
             "backend": self.backend,
             "model": self.model,
             "base_url": self.base_url,

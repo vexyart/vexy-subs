@@ -93,3 +93,33 @@ private corpus sets and their 24 delivery mirrors, preserving original backups.
 Independent parser/text audit covers 14,733 cues with original lexical order,
 unchanged retained speaker IDs and exact SRT delivery mirrors. Private reports
 retain unresolved quantitative reading-speed/short-turn/timing cases.
+
+## Issue 201 model benchmark, 2026-10-13
+
+Created source-grounded metadata beside 26 private recordings (24 programme
+recordings and two advanced recording variants); missing programme participants
+and filename-derived identity are explicitly marked. Extracted a 180-second
+middle excerpt of the requested recording into its delivery `.work` directory,
+with provenance/hash receipt and private reproduction scripts.
+
+Fresh prompted/unprompted Whisper turbo and Parakeet Ultra runs completed.
+Existing vocabulary produced identical Whisper text on this excerpt; timings
+contain 395 words and zero collapsed intervals. Parakeet retained more fillers
+and misrecognized a technical panel name, so speed alone cannot select it.
+Local timed editorial processing retained 380 words in 38 verified cues.
+Qwen cached metadata initially lacked weights; downloaded the pinned checkpoint
+and completed three comparisons. Its metadata prompt left output unchanged,
+editorial instructions retained repetitions, and chunk bounds supplied no sentence
+alignment. A complete punctuation/cleanup run exported 36 verified cues.
+The final report is in the requested private work directory.
+
+The benchmark exposed an article-fragment restart surviving model-added periods.
+Added failing tests first, then extended existing phrase detection narrowly;
+completed phrases retain their original timing. Complete sentences, questions,
+pauses and speaker handoffs remain protected. Policy 8 refreshes editorial
+receipts without invalidating inference caches. Public guidance now describes
+initial-prompt limits, editorial stages and model timing contracts. Release gates
+and publication are in progress. Private evidence is in the
+requested work directory; no recordings or names were added to public source.
+
+Fresh baseline `./test.sh`: 96 passed, 90.41% coverage; Ruff clean.

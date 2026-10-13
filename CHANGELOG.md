@@ -1,6 +1,18 @@
 <!-- this_file: CHANGELOG.md -->
 # Changelog
 
+## 1.0.3
+- Remove immediate English phrase restarts when punctuation restoration puts a
+  period after an unfinished article, preserving the completed phrase's timing,
+  complete repeated sentences, questions, pauses and speaker handoffs.
+- Advance the beautification policy to 8 so old editorial receipts are refreshed
+  without repeating recognition, alignment, diarization or punctuation inference.
+- Documented recognition-context limits, the timed editorial workflow, and the
+  distinction between Whisper word estimates, Parakeet subword/sentence timing
+  and Qwen audio-chunk bounds after a local multi-model comparison.
+- Clarified that `--asr_model` selects compatible Whisper checkpoints and that
+  spelling hints do not provide instruction-following editorial cleanup.
+
 ## 1.0.1
 - Added `translate`, ported from the retired vttrix package: two-pass (translate,
   refine) LLM subtitle translation for SRT/VTT/ASS/SSA with a JSON glossary,

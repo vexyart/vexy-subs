@@ -424,6 +424,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#readable-transcripts-and-model-choice" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Readable transcripts and model choice
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#language" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -812,6 +823,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#readable-transcripts-and-model-choice" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Readable transcripts and model choice
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#language" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -956,6 +978,7 @@
   
 
 
+<!-- this_file: src_docs/md/transcription.md -->
 <h1 id="transcription">Transcription<a class="headerlink" href="#transcription" title="Permanent link">&para;</a></h1>
 <p><code>transcribe</code> turns one video into speaker-coloured subtitles. <code>batch</code> does the
 same for every matching video in a folder. Both need the <code>apple</code> extra.</p>
@@ -977,8 +1000,35 @@ punctuation is restored.</p>
 <p>With this file, Whisper receives <code>Anna Kowalska, Ben Okafor, QuasarAPI,
 OpenType, Python</code>.</p>
 <p>A hint is context for recognition. It does not guarantee a replacement, and
-Whisper's prompt context is finite. The receipt records the hint file's name and
-SHA-256, not its contents.</p>
+Whisper's prompt context is finite. With the supported mlx-whisper runtime and
+<code>condition_on_previous_text=False</code>, the initial prompt applies to the first
+decoding window; it is not persistent glossary context for a long recording.
+The receipt records the hint file's name and SHA-256, not its contents.</p>
+<h2 id="readable-transcripts-and-model-choice">Readable transcripts and model choice<a class="headerlink" href="#readable-transcripts-and-model-choice" title="Permanent link">&para;</a></h2>
+<p>Recognition hints provide spelling context; instructions such as “remove fillers”
+do not make an ASR model an editor. <code>transcribe</code> already runs punctuation restoration
+and conservative editorial cleanup after recognition. Use <code>--beautify=False</code> to
+retain verbatim words, or <code>beautify</code> to revise existing timed captions. Retained
+word timings are preserved apart from recorded timing repairs; deleted fillers
+are recorded in the receipt.
+Immediate repeated phrase starts are removed even when the punctuation model
+puts a period after an unfinished article (for example, “That’s a. That’s a good
+lesson”). Complete repeated sentences, questions, pauses and speaker handoffs
+remain protected. This produces readable captions without free paraphrasing or
+summarization; punctuation predictions still need editorial review.</p>
+<p>A local comparison of Whisper turbo, Parakeet Ultra and Qwen3-ASR 1.7B found that
+metadata prompts did not improve every excerpt, and an editorial instruction to
+Qwen left repetitions intact. Recognition speed alone does not establish better
+technical vocabulary or editorial quality. Whisper remains the supported ASR
+backend; <code>--asr_model</code> selects a compatible Whisper checkpoint, not another family.</p>
+<p>Timing contracts also differ. Whisper supplies word estimates. Parakeet's tested
+MLX runtime supplies sentence intervals and subword tokens. Qwen's tested MLX
+runtime supplies audio-chunk bounds, which cannot be treated as sentence timings.
+Qwen offers a separate forced aligner, but it must be exercised before that route
+can deliver aligned captions. An alignment estimate is not a native word timestamp.</p>
+<p>Implementation references: <a href="https://github.com/ml-explore/mlx-examples/tree/main/whisper">MLX Whisper</a>,
+<a href="https://github.com/senstella/parakeet-mlx">Parakeet MLX</a>, and
+<a href="https://github.com/QwenLM/Qwen3-ASR">Qwen3-ASR</a>.</p>
 <h2 id="language">Language<a class="headerlink" href="#language" title="Permanent link">&para;</a></h2>
 <p><code>--language</code> defaults to <code>en</code>. Pass an empty string, <code>--language=""</code>, to let
 Whisper detect the language.</p>

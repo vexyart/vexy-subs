@@ -40,7 +40,12 @@ This talk discusses font shaping. Preserve the terminology when it is spoken.
 for recognition language detection. FullStop punctuation supports English,
 German, French, Italian and Dutch; other languages need an appropriate
 `--punctuation_model`. A hint is recognition context, not a guaranteed replacement
-or instruction following mechanism. Whisper has a finite prompt context.
+or instruction following mechanism. Whisper has a finite prompt context. With
+the current runtime/settings, initial hints apply to the first decoding window rather than persisting throughout a
+long recording. Recognition hints are not editorial instructions: punctuation
+and conservative cleanup run as separate stages. `--asr_model` accepts compatible
+Whisper checkpoints, not arbitrary ASR families. See the
+[model and timing notes](https://vexy.dev/vexy-subs/transcription/#readable-transcripts-and-model-choice).
 
 Outputs are `.srt`, `.vtt`, `.ass`, `.words.json` and `.vexy-subs.json`.
 ASS stores named per-speaker colour styles. WebVTT stores voice spans, cue

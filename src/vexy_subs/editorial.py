@@ -188,10 +188,21 @@ def discourse(words: list[Word]) -> tuple[list[Word], list[dict]]:
                 second = words[index + size : index + size * 2]
                 if len(second) != size:
                     continue
+                completion = words[index + size * 2 : index + size * 2 + 1]
+                article_fragment = (
+                    first[-1].text.lower() in {"a.", "an.", "the."}
+                    and not any(w.text.endswith((".", "?", "!")) for w in first[:-1])
+                    and bool(completion)
+                    and completion[0].speaker == word.speaker
+                    and completion[0].start - second[-1].end <= 0.5
+                )
                 if (
                     all(w.speaker == word.speaker for w in first + second)
                     and second[0].start - first[-1].end <= 0.5
-                    and not any(w.text.endswith((".", "?", "!")) for w in first)
+                    and (
+                        article_fragment
+                        or not any(w.text.endswith((".", "?", "!")) for w in first)
+                    )
                     and [lexical(w.text) for w in first]
                     == [lexical(w.text) for w in second]
                     and token
@@ -224,8 +235,10 @@ def discourse(words: list[Word]) -> tuple[list[Word], list[dict]]:
             )
             if result and result[-1].speaker == word.speaker:
                 terminal = removed[-1].text[-1:]
-                if terminal in {".", "?", "!"} and not result[-1].text.endswith(
-                    (".", "?", "!")
+                if (
+                    reason != "phrase_restart"
+                    and terminal in {".", "?", "!"}
+                    and not result[-1].text.endswith((".", "?", "!"))
                 ):
                     result[-1].text = result[-1].text.rstrip(",;:") + terminal
                 elif token in {"you", "i", "like"} and reason == "discourse_filler":

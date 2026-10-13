@@ -1,3 +1,4 @@
+<!-- this_file: src_docs/md/transcription.md -->
 # Transcription
 
 `transcribe` turns one video into speaker-coloured subtitles. `batch` does the
@@ -26,8 +27,40 @@ With this file, Whisper receives `Anna Kowalska, Ben Okafor, QuasarAPI,
 OpenType, Python`.
 
 A hint is context for recognition. It does not guarantee a replacement, and
-Whisper's prompt context is finite. The receipt records the hint file's name and
-SHA-256, not its contents.
+Whisper's prompt context is finite. With the supported mlx-whisper runtime and
+`condition_on_previous_text=False`, the initial prompt applies to the first
+decoding window; it is not persistent glossary context for a long recording.
+The receipt records the hint file's name and SHA-256, not its contents.
+
+## Readable transcripts and model choice
+
+Recognition hints provide spelling context; instructions such as “remove fillers”
+do not make an ASR model an editor. `transcribe` already runs punctuation restoration
+and conservative editorial cleanup after recognition. Use `--beautify=False` to
+retain verbatim words, or `beautify` to revise existing timed captions. Retained
+word timings are preserved apart from recorded timing repairs; deleted fillers
+are recorded in the receipt.
+Immediate repeated phrase starts are removed even when the punctuation model
+puts a period after an unfinished article (for example, “That’s a. That’s a good
+lesson”). Complete repeated sentences, questions, pauses and speaker handoffs
+remain protected. This produces readable captions without free paraphrasing or
+summarization; punctuation predictions still need editorial review.
+
+A local comparison of Whisper turbo, Parakeet Ultra and Qwen3-ASR 1.7B found that
+metadata prompts did not improve every excerpt, and an editorial instruction to
+Qwen left repetitions intact. Recognition speed alone does not establish better
+technical vocabulary or editorial quality. Whisper remains the supported ASR
+backend; `--asr_model` selects a compatible Whisper checkpoint, not another family.
+
+Timing contracts also differ. Whisper supplies word estimates. Parakeet's tested
+MLX runtime supplies sentence intervals and subword tokens. Qwen's tested MLX
+runtime supplies audio-chunk bounds, which cannot be treated as sentence timings.
+Qwen offers a separate forced aligner, but it must be exercised before that route
+can deliver aligned captions. An alignment estimate is not a native word timestamp.
+
+Implementation references: [MLX Whisper](https://github.com/ml-explore/mlx-examples/tree/main/whisper),
+[Parakeet MLX](https://github.com/senstella/parakeet-mlx), and
+[Qwen3-ASR](https://github.com/QwenLM/Qwen3-ASR).
 
 ## Language
 
