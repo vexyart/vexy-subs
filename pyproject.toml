@@ -12,7 +12,7 @@ requires-python = ">=3.12"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
 authors = [{ name = "Adam Twardoch", email = "adam+github@twardoch.com" }]
-keywords = ["subtitles", "captions", "transcription", "diarization", "qwen", "webvtt", "translation"]
+keywords = ["subtitles", "captions", "transcription", "diarization", "qwen", "webvtt", "translation", "shot-detection", "keyframes", "yt-dlp"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Environment :: Console",
@@ -43,8 +43,10 @@ dependencies = [
 [project.optional-dependencies]
 apple = ["mlx-whisper==0.4.3", "mlx-audio==0.5.7", "deepmultilingualpunctuation==1.0.1", "torch>=2.6", "transformers>=5.14,<6", "soundfile>=0.13"]
 native = ["deepmultilingualpunctuation==1.0.1", "torch>=2.6", "transformers>=5.14,<6"]
-test = ["pytest>=8", "pytest-cov>=6", "ruff>=0.12", "build>=1.2", "twine>=6"]
+test = ["pytest>=8", "pytest-cov>=6", "ruff>=0.12", "build>=1.2", "twine>=6", "opencv-python-headless>=4.10,<5", "numpy>=1.26", "yt-dlp>=2025.1"]
 cluster = ["diarize==0.1.2"]
+video = ["opencv-python-headless>=4.10,<5", "numpy>=1.26", "yt-dlp>=2025.1"]
+youtube = ["yt-dlp>=2025.1"]
 
 [project.scripts]
 vexy-subs = "vexy_subs.cli:main"

@@ -45,17 +45,7 @@ markdown_extensions:
   - pymdownx.tabbed: {alternate_style: true}
   - pymdownx.tasklist: {custom_checkbox: true}
 plugins:
-  - search
-nav:
-  - Home: index.md
-  - Installation: installation.md
-  - Quickstart: quickstart.md
-  - Transcription: transcription.md
-  - Beautification: beautify.md
-  - Translation: translation.md
-  - Configuration: configuration.md
-  - Command reference: cli.md
-  - Python API: api.md
-  - Troubleshooting: troubleshooting.md
-  - Development: development.md
-  - Changelog: changelog.md
+  - materialx/meta
+  - materialx/tags
+  - awesome-nav
+  - materialx/search

@@ -43,12 +43,27 @@ def test_aligner_when_punctuation_changes_then_preserves_original_text():
     assert words[0].start == 30.1 and words[-1].end == 31.7
 
 
+def test_alignment_when_last_word_end_extrapolated_past_chunk_then_clamps():
+    from vexy_subs.qwen import retain_words
+
+    words = retain_words(
+        "it happen",
+        [
+            N(text="it", start_time=29.6, end_time=29.76),
+            N(text="happen", start_time=29.84, end_time=30.4),
+        ],
+        240,
+        30,
+    )
+    assert words[-1].end == 270, "Aligner overshoot is clamped to the chunk end"
+
+
 @pytest.mark.parametrize(
     "text,items",
     [
         ("20 units", [N(text="2", start_time=0, end_time=1)]),
         ("hello", [N(text="hello", start_time=1, end_time=0)]),
-        ("hello", [N(text="hello", start_time=0, end_time=3)]),
+        ("hello", [N(text="hello", start_time=2.5, end_time=3)]),
     ],
 )
 def test_alignment_when_content_or_bounds_invalid_then_rejects(text, items):

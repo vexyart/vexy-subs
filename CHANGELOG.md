@@ -2,6 +2,19 @@
 # Changelog
 
 ## Unreleased
+- `batch` accepts a YouTube video or playlist URL or a `.txt` URL list; yt-dlp
+  downloads video, info.json and uploader-supplied English captions only.
+  Titles and cleaned descriptions become tagged hints that reach every Qwen chunk.
+- `--reference_file` (and batch, from caption sidecars) gives each 30 s ASR chunk
+  the overlapping human caption text for spelling.
+- `visual` command and `batch --visual`: camera cuts and in-shot content changes,
+  head/tail keyframes with timestamps, motion/face/palette heuristics,
+  `<stem>.shots.json`, a Basecoat keyframe/subtitle page and `index.html`.
+- New `video` and `youtube` extras; agent skills `vexy-subs-batch` and
+  `vexy-subs-visual`.
+- Fixed forced alignment rejecting whole recordings when the aligner extrapolated
+  a chunk's final word past the 30-second chunk end; the end is now clamped, while
+  starts outside the chunk (beyond one 80 ms step) and disorder are still rejected.
 - Use Qwen3-ASR 1.7B MLX as the primary recognizer, with automatic Qwen audio.cpp
   selection when MLX is unavailable. Forward concise recognition vocabulary to
   every bounded MLX chunk; retain an explicit Whisper cross-check route.
@@ -74,3 +87,9 @@
 - Added model punctuation restoration that preserves timed lexical tokens.
 - Added UTF-8 Markdown/text prompt files forwarded to Whisper recognition.
 - Added an installable Fire CLI, recoverable inference stages and hash verification.
+
+## 2026-10-18: documentation plugins
+
+- Use MaterialX search, inherited metadata and a topic index; keep ordered navigation in awesome-nav.
+- The documentation wrapper installs the plugins required by this site.
+- Strict documentation build and rendered output checks passed.

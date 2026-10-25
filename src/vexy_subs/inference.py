@@ -18,10 +18,11 @@ def transcribe(
     language: str,
     model: str = ASR,
     alignment_model: str = qwen.ALIGNER,
+    reference: tuple = (),
 ) -> tuple[list[Word], dict]:
     """Primary recognition is Qwen, with actual forced-aligned word timings."""
     qwen.check_model(model)
-    return qwen.transcribe(wav, hints, language, model, alignment_model)
+    return qwen.transcribe(wav, hints, language, model, alignment_model, reference)
 
 
 def whisper(

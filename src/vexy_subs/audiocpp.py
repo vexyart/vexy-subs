@@ -11,6 +11,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 from . import qwen
+from .hints import excerpt
 from .io import sha256
 from .types import Turn, Word
 
@@ -90,6 +91,7 @@ def transcribe(
     aligner: str,
     binary: str,
     backend: str,
+    reference: tuple = (),
 ) -> tuple[list[Word], dict]:
     """Run bounded requests in one loaded native session, avoiding word-filtering merges."""
     words, segments = [], []
@@ -101,7 +103,9 @@ def transcribe(
                 "id": f"{i:03}",
                 "audio": str(audio),
                 "language": qwen.LANGUAGES.get(language, language),
-                "text": qwen.context(hints),
+                "text": qwen.context(
+                    hints, excerpt(list(reference), offset, offset + duration)
+                ),
                 "options": {
                     "max_tokens": qwen.MAX_TOKENS,
                     "audio_chunk_mode": "none",
@@ -109,7 +113,7 @@ def transcribe(
                     "clamp_timestamps_to_audio": True,
                 },
             }
-            for i, (audio, _, _) in enumerate(prepared)
+            for i, (audio, offset, duration) in enumerate(prepared)
         ]
         sequence = folder / "requests.json"
         sequence.write_text(json.dumps({"requests": requests}))

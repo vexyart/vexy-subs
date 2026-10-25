@@ -1,3 +1,8 @@
+---
+this_file: src_docs/md/api.md
+tags: [API]
+---
+
 # Python API
 
 The `vexy_subs` package exports the subtitle translation API, which is

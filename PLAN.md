@@ -34,6 +34,44 @@ v1.0.3 from a clean tagged checkout; exact distributions passed content checks,
 clean installation and remote PyPI hash verification. Final tests: 106 passed,
 90.42% coverage, Ruff clean; strict documentation build passed.
 
+## Visual scan pages and YouTube batches (task 101a)
+
+Source analysis (four local reference projects, read in full where relevant):
+
+- reelpack-alpha (Swift app + Python core): TransNetV2 with a recorded fallback to
+  an adaptive OpenCV selector (HSV histogram χ², edge-change ratio, pixel change,
+  local mean+3σ threshold, talking-head guard), exclusive shot ends, evidence
+  frames and contact boards. Transplanted: the adaptive selector and its guard,
+  exclusive-end sampling, full-resolution `-ss` frame extraction.
+- framecheck (Python CLI/GUI): FFmpeg raw-pipe decoding, HSV cut score with a
+  minimum shot length, sparse optical flow + RANSAC similarity for 2D motion
+  labels, keyframe per shot, offline report. Transplanted: raw-pipe decoding,
+  minimum shot length, motion estimate and label summary, honest limitations.
+- video-breakdown (Python): TransNetV2/PySceneDetect, transition classification,
+  K-means colour fingerprint, yt-dlp input, Claude-vision prompts. Transplanted:
+  K-means palette and the yt-dlp source idea. Rejected: cloud vision, pose models.
+- shotgun (C++ PySceneDetect port, TransNetV2 ONNX weights). Not transplanted:
+  a compiled dependency and 90 MB weights for camera cuts that conference
+  recordings rarely have; documented as a possible optional backend.
+
+Plan and outcome:
+
+1. `youtube.py`: expand URL/playlist/list, download with yt-dlp, keep only
+   uploader English captions, derive tagged Title/Description hints. Done.
+2. `qwen.context`: always forward tagged metadata; per-chunk human caption
+   excerpt via `--reference_file` (MLX and audio.cpp). Done; receipt gains the
+   reference digest only when used, so existing caches stay valid.
+3. `visual.py`: one decode pass for cuts, 0.5 s motion samples and thumbnails;
+   in-shot content changes (slides) with onset/settle refinement; head/tail
+   keyframes with a changed-area similarity rule. Done.
+4. `page.py`: Basecoat CDN page, keyframes left, cues right, filter, deep links;
+   batch index page. Done.
+5. `batch` folder/URL/list sources and `--visual`; `visual` command; skills
+   `vexy-subs-batch` and `vexy-subs-visual`; tests without network. Done.
+6. Fixed a pre-existing forced-alignment bound: the aligner extrapolates a
+   chunk's final word up to ~0.4 s past the 30 s chunk; the end is clamped
+   instead of failing the recording. Done with regression test.
+
 ## Qwen production integration (complete)
 
 1. Default to Qwen3-ASR 1.7B MLX with vocabulary, Qwen audio.cpp on hosts without MLX.

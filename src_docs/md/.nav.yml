@@ -1,0 +1,15 @@
+# this_file: src_docs/md/.nav.yml
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - Quickstart: quickstart.md
+  - Transcription: transcription.md
+  - Beautification: beautify.md
+  - Translation: translation.md
+  - Configuration: configuration.md
+  - Command reference: cli.md
+  - Python API: api.md
+  - Troubleshooting: troubleshooting.md
+  - Development: development.md
+  - Changelog: changelog.md
+  - Topics: topics.md

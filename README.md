@@ -13,6 +13,8 @@ uv tool install './[apple,cluster]'
 vexy-subs doctor
 vexy-subs transcribe clip.mp4 --prompt_file=hints.md --output_dir=subtitles
 vexy-subs batch videos --prompt_dir=hints --output_dir=subtitles
+vexy-subs batch urls.txt --output_dir=pack --visual   # YouTube URLs or a playlist
+vexy-subs visual clip.mp4 --output_dir=subtitles      # shots, keyframes, scan page
 vexy-subs beautify subtitles
 vexy-subs verify subtitles --source_dir=videos
 vexy-subs translate subtitles/clip.ass subtitles/clip.pl.ass PROFILE English Polish
@@ -108,6 +110,29 @@ the remaining inputs. Verification checks hashes, text, timelines, colour styles
 and voice tags. JSON results go to stdout; progress goes to stderr.
 `verify --source_dir=videos` also checks every expected input hash and rejects
 missing video outputs; without it, verification audits the completed output sets.
+
+## YouTube batches and visual scan pages
+
+`batch` also accepts a YouTube video or playlist URL, or a `.txt` file with one
+URL per line. Install the `youtube` extra; yt-dlp saves `<id>.mp4`,
+`<id>.info.json` and only uploader-supplied English captions to `--download_dir`
+(default `<output_dir>/sources`). Automatic captions are never used. Each video
+gets `<id>.hints.md` with `Title:` and a cleaned, bounded `Description:`; these
+tagged lines reach every Qwen chunk even alongside a `Names:`/`Terms:` glossary.
+A human caption file becomes `--reference_file`: every 30-second chunk sees only
+the caption text that overlaps it, for spelling. Local folders with yt-dlp
+sidecars get the same treatment.
+
+`vexy-subs visual video.mp4` (the `video` extra: OpenCV and NumPy) detects camera
+cuts with an adaptive histogram/edge/pixel test that ignores talking-head motion,
+plus in-shot changes such as slide switches that then hold still. Each segment
+gets a keyframe a quarter second after its start (after a dissolve settles) and
+one before its end; the second is dropped when under 3% of the frame differs.
+`<stem>.shots.json` stores shots, segments, motion labels, face/graphic heuristics,
+palettes and timestamped keyframes. `<stem>.html` is a Basecoat page (CDN) with
+keyframes on the left and the cues of each interval on the right, with
+timestamp links and a filter box. `batch --visual` adds both per video and an
+`index.html`. Cut detection and content labels are heuristics.
 
 Recordings, prompt files, personal names, models and run artifacts are user-owned
 private data. They are excluded from the source/wheel allowlists. The package

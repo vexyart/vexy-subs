@@ -36,6 +36,9 @@ the README's platformdirs TOML and dotenv/env contract. The local route keeps
 caption text on the machine; only an explicitly configured LLM endpoint receives
 caption tokens. Do not call numerical checks a Netflix editorial certification.
 
+For YouTube videos, playlists or URL lists use the `vexy-subs-batch` skill; for
+shots, keyframes and the keyframe/subtitle scan page use `vexy-subs-visual`.
+
 `translate` sends caption text to the named OpenAI-compatible endpoint; confirm
 that the user accepts a remote provider before using one. Prefer ASS input and
 output so speaker colours survive. `vexy-subs llm check SPEC` validates a profile

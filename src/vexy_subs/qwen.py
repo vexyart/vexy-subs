@@ -6,7 +6,7 @@ import tempfile
 import wave
 from pathlib import Path
 
-from .hints import vocabulary
+from .hints import excerpt, metadata, vocabulary
 from .types import Word
 
 MODEL = "mlx-community/Qwen3-ASR-1.7B-8bit"
@@ -26,6 +26,9 @@ LANGUAGES = {
 }
 MAX_TOKENS = 1024
 CHUNK_SECONDS = 30
+# Aligner times sit on an 80 ms grid; a final word may start one step late, and its
+# extrapolated end past the chunk is clamped rather than treated as invalid.
+ALIGNER_STEP = 0.08
 
 
 def mlx_available() -> bool:
@@ -56,18 +59,40 @@ def check_model(model: str) -> None:
         raise ValueError("This ASR family was removed; use Qwen3-ASR")
 
 
-def context(hints: str) -> str:
-    """Prefer a small glossary to programme metadata that can contaminate recognition."""
+def context(hints: str, reference: str = "") -> str:
+    """Prefer a small glossary to free-form notes; tagged metadata is always kept.
+
+    `reference` is the human-edited caption text overlapping one chunk only.
+    """
     terms = vocabulary(hints)
-    return (
-        (
-            "Known terminology: "
-            + ", ".join(terms)
-            + ". Use these spellings only when spoken. Transcribe verbatim; do not add terms or summarize."
+    text = (
+        "\n".join(
+            filter(
+                None,
+                (
+                    "Known terminology: "
+                    + ", ".join(terms)
+                    + ". Use these spellings only when spoken. Transcribe verbatim; do not add terms or summarize.",
+                    metadata(hints),
+                ),
+            )
         )
         if terms
         else hints
     )
+    if reference:
+        text = "\n".join(
+            filter(
+                None,
+                (
+                    text,
+                    "Human-edited transcript of this passage, for spelling only: "
+                    + reference
+                    + "\nTranscribe exactly what is spoken in the audio.",
+                ),
+            )
+        )
+    return text
 
 
 def chunks(wav: Path, folder: Path):
@@ -107,7 +132,8 @@ def retain_words(text: str, items: list, offset: float, duration: float) -> list
         while position < len(items) and len(actual) < len(expected):
             item = items[position]
             if (
-                not (0 <= item.start_time <= item.end_time <= duration + 0.04)
+                not (0 <= item.start_time <= item.end_time)
+                or item.start_time > duration + ALIGNER_STEP
                 or item.start_time < previous
             ):
                 raise ValueError("Forced alignment returned invalid bounds or order")
@@ -136,6 +162,7 @@ def transcribe(
     language: str,
     model: str = MODEL,
     aligner_model: str = ALIGNER,
+    reference: tuple = (),
 ) -> tuple[list[Word], dict]:
     """Load Qwen once; recognise and acoustically align each bounded audio chunk."""
     from mlx_audio.stt import load
@@ -148,7 +175,10 @@ def transcribe(
             result = recognizer.generate(
                 str(audio),
                 language=LANGUAGES.get(language, language) or None,
-                system_prompt=context(hints) or None,
+                system_prompt=context(
+                    hints, excerpt(list(reference), offset, offset + duration)
+                )
+                or None,
                 max_tokens=MAX_TOKENS,
                 temperature=0.0,
                 verbose=False,

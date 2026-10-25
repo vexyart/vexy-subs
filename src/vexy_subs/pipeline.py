@@ -17,7 +17,7 @@ from .beautify import beautify as beautify_words
 from .beautify_config import load_config
 from .cues import segment
 from .formats import verify, write
-from .hints import read_prompt
+from .hints import read_prompt, read_reference
 from .inference import ASR, DIAR, WHISPER, diarize, transcribe, whisper
 from .io import decode, probe, save, sha256, stage
 from .postprocess import frame_rate
@@ -33,6 +33,7 @@ def run(
     output_dir: str = "",
     prompt_file: str = "",
     prompt: str = "",
+    reference_file: str = "",
     language: str = "en",
     asr_model: str = ASR,
     diar_model: str = DIAR,
@@ -60,6 +61,7 @@ def run(
     source = Path(video).resolve()
     duration = probe(source)
     hints, hint_receipt = read_prompt(prompt_file, prompt)
+    reference, reference_receipt = read_reference(reference_file)
     names = json.loads(Path(speaker_map).read_text()) if speaker_map else {}
     qwen.check_model(asr_model)
     asr_backend = qwen.select_backend(asr_backend)
@@ -120,6 +122,8 @@ def run(
         "recognition_context": "qwen-lexicon-v2",
         "punctuation_policy": 3,
     }
+    if reference_receipt:
+        options["reference"] = reference_receipt
     if external:
         options.update(
             model_workspace=model_workspace,
@@ -196,6 +200,8 @@ def run(
 
         def asr_stage() -> dict:
             print(f"ASR {source.name}", file=sys.stderr, flush=True)
+            # Whisper and workspace routes receive the glossary/metadata only.
+            extra = {"reference": tuple(reference)} if reference else {}
             if asr_backend == "workspace":
                 words, raw = workspace.transcribe(
                     wav, hints, language, asr_model, model_workspace
@@ -209,12 +215,13 @@ def run(
                     alignment_model,
                     audiocpp_bin,
                     audiocpp_backend,
+                    **extra,
                 )
             elif asr_backend == "whisper":
                 words, raw = whisper(wav, hints, language, asr_model)
             else:
                 words, raw = transcribe(
-                    wav, hints, language, asr_model, alignment_model
+                    wav, hints, language, asr_model, alignment_model, **extra
                 )
             return {"words": [asdict(w) for w in words], "raw": raw}
 

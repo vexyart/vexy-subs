@@ -26,6 +26,14 @@ profile config); it adds no dependencies. vttrix's pydantic, pydantic-ai,
 tiktoken, rich and tomli-w were dropped: plain dataclasses, one HTTP call per
 pass and text appends to the TOML file cover the same ground.
 
+Optional `video` extra: opencv-python-headless and NumPy for cut features,
+optical-flow motion, Haar face counts and K-means palettes. Frames are decoded by
+the FFmpeg executable through a raw pipe, so OpenCV video I/O is not used.
+PySceneDetect and TransNetV2 were considered; the transplanted adaptive selector
+plus in-shot change detection suits slide talks without model weights.
+Optional `youtube` extra: yt-dlp for video, metadata and caption download.
+The scan page loads basecoat-css 1.1.0 from jsDelivr when opened.
+
 Build: hatchling with hatch-vcs (version from git tags).
 Tests/build: pytest, pytest-cov, ruff, build and twine.
 

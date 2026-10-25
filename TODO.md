@@ -22,3 +22,9 @@
 - [x] Wire real word alignment and portable diarization into caption generation.
 - [x] Exclude rejected ASR families and document installation/model configuration.
 - [x] Verify regression tests, real routes, documentation and distributions.
+
+- [x] YouTube/playlist/URL-list batch input through yt-dlp, uploader captions only.
+- [x] Title/description hints and per-chunk human caption reference for Qwen.
+- [x] Shot and in-shot change detection, head/tail keyframes, visual analysis.
+- [x] Basecoat keyframe/subtitle scan page and batch index; agent skills.
+- [ ] Optional TransNetV2 backend if cut-heavy material needs it.

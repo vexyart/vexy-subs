@@ -1,3 +1,8 @@
+---
+this_file: src_docs/md/cli.md
+tags: [Command line]
+---
+
 <!-- this_file: src_docs/md/cli.md -->
 # Command reference
 
@@ -13,7 +18,8 @@ vexy-subs transcribe --help
 | Command | Purpose |
 | --- | --- |
 | `transcribe` | make subtitles for one video |
-| `batch` | make subtitles for every matching video in a folder |
+| `batch` | make subtitles for a folder, a YouTube URL/playlist or a URL list |
+| `visual` | shots, keyframes and a keyframe/subtitle scan page for one video |
 | `render` | render edited timed words without any model |
 | `beautify` | clean up existing subtitles |
 | `translate` | translate a subtitle file with an LLM |
@@ -34,6 +40,7 @@ vexy-subs transcribe VIDEO [flags]
 | `--output_dir` | the video's folder | where outputs and the `.work` folder go |
 | `--prompt_file` | empty | UTF-8 `.md` or `.txt` hint file |
 | `--prompt` | empty | inline hints |
+| `--reference_file` | empty | human-edited SRT/VTT; each ASR chunk sees its overlapping text |
 | `--language` | `en` | recognition language; `""` detects it |
 | `--asr_backend` | `auto` | MLX Qwen when available, otherwise native Qwen; explicit `mlx`, `audiocpp`, `whisper`, legacy `workspace` |
 | `--asr_model` | `mlx-community/Qwen3-ASR-1.7B-8bit` | Qwen MLX repo/path or native GGUF path |
@@ -64,11 +71,16 @@ See [Transcription](transcription.md).
 vexy-subs batch [FOLDER] [flags]
 ```
 
-`FOLDER` defaults to the current folder.
+`FOLDER` defaults to the current folder. It can also be a YouTube video or
+playlist URL, or a `.txt` file with one URL per line (needs the `youtube` extra).
+yt-dlp sidecars (`<stem>.info.json`, uploader English captions) next to a video
+add `Title:`/`Description:` hints and a caption reference automatically.
 
 | Flag | Default | Meaning |
 | --- | --- | --- |
 | `--output_dir` | each video's folder | where outputs go |
+| `--download_dir` | `<output_dir>/sources` | where YouTube downloads go |
+| `--visual` | `False` | also run `visual` per video and write `index.html` |
 | `--prompt_dir` | empty | folder with one `<stem>.md` or `<stem>.txt` per video |
 | `--asr_backend`, `--asr_model` | `auto`, automatic model | as for `transcribe` |
 | `--alignment_model`, `--punctuation_model`, `--diar_model` | automatic | model overrides |
@@ -87,6 +99,23 @@ vexy-subs batch [FOLDER] [flags]
 
 Each video runs in its own process. Failures are collected and reported at the
 end as an error that lists the failed file names.
+
+## `visual`
+
+```bash
+vexy-subs visual VIDEO [--output_dir=DIR] [--subtitles=FILE] [flags]
+```
+
+Needs the `video` extra. Writes `<stem>.shots.json`, `<stem>.keyframes/` and
+`<stem>.html` (keyframes left, subtitles right; Basecoat from a CDN). Subtitles
+default to `<stem>.ass`, `.vtt` or `.srt` in the output folder.
+
+| Flag | Default | Meaning |
+| --- | --- | --- |
+| `--min_shot` | `0.4` | minimum seconds between camera cuts |
+| `--keyframe_offset` | `0.25` | seconds after a boundary and before the next |
+| `--keyframe_threshold` | `0.03` | drop the tail keyframe below this changed share |
+| `--force` | `False` | rebuild instead of reusing a matching `shots.json` |
 
 ## `render`
 

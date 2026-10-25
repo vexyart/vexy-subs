@@ -12,8 +12,9 @@ import subprocess
 import sys
 from pathlib import Path
 
-from . import __version__, qwen
+from . import __version__, page, qwen, youtube
 from . import llm as llm_module
+from . import visual as visual_pass
 from .formats import verify
 from .io import sha256
 from .pipeline import run
@@ -210,9 +211,29 @@ class CLI:
         punctuation_model: str = "",
         audiocpp_bin: str = "",
         audiocpp_backend: str = "auto",
+        download_dir: str = "",
+        visual: bool = False,
     ) -> dict:
-        """Process videos sequentially; require every per-video hint when prompt_dir is given."""
-        videos = sorted(Path(folder).resolve().glob(pattern))
+        """Process a folder, a YouTube URL/playlist or a .txt URL list sequentially.
+
+        yt-dlp sidecars supply title/description hints and human English captions;
+        --visual adds shots, keyframes and the subtitle scan page per video.
+        """
+        failed = []
+        if youtube.is_url(folder) or Path(folder).suffix.lower() == ".txt":
+            downloads = Path(download_dir or Path(output_dir or ".") / "sources")
+            videos = []
+            for index, url in enumerate(urls := youtube.expand(folder), 1):
+                print(
+                    f"[download {index}/{len(urls)}] {url}", file=sys.stderr, flush=True
+                )
+                try:
+                    videos.append(youtube.download(url, downloads.resolve()))
+                except (OSError, RuntimeError) as exc:
+                    print(f"FAILED {url}: {exc}", file=sys.stderr, flush=True)
+                    failed.append(url)
+        else:
+            videos = sorted(Path(folder).resolve().glob(pattern))
         if not videos:
             raise ValueError("No matching videos")
         prompts = {}
@@ -225,9 +246,26 @@ class CLI:
                 if len(matches) != 1:
                     raise ValueError(f"Require exactly one prompt for {video.name}")
                 prompts[video] = matches[0].resolve()
-        failed = []
+        done = []
         for index, video in enumerate(videos, 1):
             print(f"[{index}/{len(videos)}] {video.name}", file=sys.stderr, flush=True)
+            target = Path(output_dir).resolve() if output_dir else video.parent
+            meta, reference = youtube.sidecars(video)
+            if meta:
+                own = (
+                    prompts[video].read_text(encoding="utf-8").strip()
+                    if video in prompts
+                    else ""
+                )
+                generated = target / f"{video.stem}.hints.md"
+                target.mkdir(parents=True, exist_ok=True)
+                text = "\n".join(filter(None, (own, meta))) + "\n"
+                if (
+                    not generated.is_file()
+                    or generated.read_text(encoding="utf-8") != text
+                ):
+                    generated.write_text(text, encoding="utf-8")
+                prompts[video] = generated
             command = [
                 sys.executable,
                 "-m",
@@ -268,13 +306,65 @@ class CLI:
                     command.append(f"--{key}={value}")
             if video in prompts:
                 command.append(f"--prompt_file={prompts[video]}")
+            if reference:
+                command.append(f"--reference_file={reference}")
             try:
                 subprocess.run(command, check=True, timeout=14400)
             except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
                 failed.append(video.name)
+                continue
+            if visual:
+                try:
+                    self.visual(str(video), output_dir=str(target), force=force)
+                except (
+                    OSError,
+                    ValueError,
+                    RuntimeError,
+                    subprocess.SubprocessError,
+                ) as exc:
+                    print(
+                        f"FAILED visual {video.name}: {exc}",
+                        file=sys.stderr,
+                        flush=True,
+                    )
+                    failed.append(video.name)
+                    continue
+            done.append((target, video))
+        if visual and done:
+            for target in {t for t, _ in done}:
+                page.index(target, [v for t, v in done if t == target])
         if failed:
             raise RuntimeError(json.dumps({"failed": failed}))
         return {"processed": len(videos), "failures": []}
+
+    def visual(
+        self,
+        video: str,
+        output_dir: str = "",
+        subtitles: str = "",
+        force: bool = False,
+        min_shot: float = visual_pass.MIN_SHOT_SECONDS,
+        keyframe_offset: float = visual_pass.KEYFRAME_OFFSET,
+        keyframe_threshold: float = visual_pass.KEYFRAME_THRESHOLD,
+    ) -> dict:
+        """Shots, visual analysis, timestamped keyframes and a keyframe/subtitle page."""
+        source = Path(video).resolve()
+        folder = Path(output_dir).resolve() if output_dir else source.parent
+        data = visual_pass.run(
+            str(source),
+            str(folder),
+            force,
+            min_shot,
+            keyframe_offset,
+            keyframe_threshold,
+        )
+        written = page.write(source, folder, subtitles)
+        return {
+            "shots": len(data["shots"]),
+            "keyframes": len(data["keyframes"]),
+            "shots_file": str(folder / f"{source.stem}.shots.json"),
+            "page": str(written),
+        }
 
     def verify(
         self,

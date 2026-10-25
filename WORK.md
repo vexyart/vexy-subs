@@ -160,3 +160,9 @@ Strict docs build and wheel/sdist Twine checks passed; exact distributions conta
 both adapters and exclude private paths/media/weights. Updated the installed CLI
 from the checked wheel, preserving apple/cluster extras; installed source hashes
 match the worktree. Built development artifacts locally; no release/push was made.
+
+## 2026-10-18: documentation plugins
+
+- Use MaterialX search, inherited metadata and a topic index; keep ordered navigation in awesome-nav.
+- The documentation wrapper installs the plugins required by this site.
+- Strict documentation build and rendered output checks passed.

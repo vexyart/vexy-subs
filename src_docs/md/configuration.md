@@ -1,3 +1,8 @@
+---
+this_file: src_docs/md/configuration.md
+tags: [Configuration]
+---
+
 # Configuration
 
 Configuration controls the beautification route, the optional LLM, and the LLM
