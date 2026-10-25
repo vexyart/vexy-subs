@@ -543,6 +543,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#visual" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        visual
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#render" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -735,6 +746,33 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../topics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Topics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -777,6 +815,17 @@
     <span class="md-ellipsis">
       
         batch
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#visual" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        visual
       
     </span>
   </a>
@@ -900,7 +949,11 @@ progress goes to standard error. Add <code>--help</code> after a command to prin
 </tr>
 <tr>
 <td><code>batch</code></td>
-<td>make subtitles for every matching video in a folder</td>
+<td>make subtitles for a folder, a YouTube URL/playlist or a URL list</td>
+</tr>
+<tr>
+<td><code>visual</code></td>
+<td>shots, keyframes and a keyframe/subtitle scan page for one video</td>
 </tr>
 <tr>
 <td><code>render</code></td>
@@ -962,6 +1015,11 @@ progress goes to standard error. Add <code>--help</code> after a command to prin
 <td><code>--prompt</code></td>
 <td>empty</td>
 <td>inline hints</td>
+</tr>
+<tr>
+<td><code>--reference_file</code></td>
+<td>empty</td>
+<td>human-edited SRT/VTT; each ASR chunk sees its overlapping text</td>
 </tr>
 <tr>
 <td><code>--language</code></td>
@@ -1074,7 +1132,10 @@ progress goes to standard error. Add <code>--help</code> after a command to prin
 <h2 id="batch"><code>batch</code><a class="headerlink" href="#batch" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>vexy-subs<span class="w"> </span>batch<span class="w"> </span><span class="o">[</span>FOLDER<span class="o">]</span><span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </code></pre></div>
-<p><code>FOLDER</code> defaults to the current folder.</p>
+<p><code>FOLDER</code> defaults to the current folder. It can also be a YouTube video or
+playlist URL, or a <code>.txt</code> file with one URL per line (needs the <code>youtube</code> extra).
+yt-dlp sidecars (<code>&lt;stem&gt;.info.json</code>, uploader English captions) next to a video
+add <code>Title:</code>/<code>Description:</code> hints and a caption reference automatically.</p>
 <table>
 <thead>
 <tr>
@@ -1088,6 +1149,16 @@ progress goes to standard error. Add <code>--help</code> after a command to prin
 <td><code>--output_dir</code></td>
 <td>each video's folder</td>
 <td>where outputs go</td>
+</tr>
+<tr>
+<td><code>--download_dir</code></td>
+<td><code>&lt;output_dir&gt;/sources</code></td>
+<td>where YouTube downloads go</td>
+</tr>
+<tr>
+<td><code>--visual</code></td>
+<td><code>False</code></td>
+<td>also run <code>visual</code> per video and write <code>index.html</code></td>
 </tr>
 <tr>
 <td><code>--prompt_dir</code></td>
@@ -1168,8 +1239,45 @@ progress goes to standard error. Add <code>--help</code> after a command to prin
 </table>
 <p>Each video runs in its own process. Failures are collected and reported at the
 end as an error that lists the failed file names.</p>
+<h2 id="visual"><code>visual</code><a class="headerlink" href="#visual" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>vexy-subs<span class="w"> </span>visual<span class="w"> </span>VIDEO<span class="w"> </span><span class="o">[</span>--output_dir<span class="o">=</span>DIR<span class="o">]</span><span class="w"> </span><span class="o">[</span>--subtitles<span class="o">=</span>FILE<span class="o">]</span><span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+</code></pre></div>
+<p>Needs the <code>video</code> extra. Writes <code>&lt;stem&gt;.shots.json</code>, <code>&lt;stem&gt;.keyframes/</code> and
+<code>&lt;stem&gt;.html</code> (keyframes left, subtitles right; Basecoat from a CDN). Subtitles
+default to <code>&lt;stem&gt;.ass</code>, <code>.vtt</code> or <code>.srt</code> in the output folder.</p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--min_shot</code></td>
+<td><code>0.4</code></td>
+<td>minimum seconds between camera cuts</td>
+</tr>
+<tr>
+<td><code>--keyframe_offset</code></td>
+<td><code>0.25</code></td>
+<td>seconds after a boundary and before the next</td>
+</tr>
+<tr>
+<td><code>--keyframe_threshold</code></td>
+<td><code>0.03</code></td>
+<td>drop the tail keyframe below this changed share</td>
+</tr>
+<tr>
+<td><code>--force</code></td>
+<td><code>False</code></td>
+<td>rebuild instead of reusing a matching <code>shots.json</code></td>
+</tr>
+</tbody>
+</table>
 <h2 id="render"><code>render</code><a class="headerlink" href="#render" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>vexy-subs<span class="w"> </span>render<span class="w"> </span>WORDS_FILE<span class="w"> </span>OUTPUT_STEM<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>vexy-subs<span class="w"> </span>render<span class="w"> </span>WORDS_FILE<span class="w"> </span>OUTPUT_STEM<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </code></pre></div>
 <p>Renders a <code>.words.json</code> file to <code>OUTPUT_STEM.ass</code>, <code>.vtt</code> and <code>.srt</code> without
 loading any model. Use it after you edit the words by hand.</p>
@@ -1220,7 +1328,7 @@ loading any model. Use it after you edit the words by hand.</p>
 </tbody>
 </table>
 <h2 id="beautify"><code>beautify</code><a class="headerlink" href="#beautify" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>vexy-subs<span class="w"> </span>beautify<span class="w"> </span><span class="o">[</span>PATH<span class="o">]</span><span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>vexy-subs<span class="w"> </span>beautify<span class="w"> </span><span class="o">[</span>PATH<span class="o">]</span><span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </code></pre></div>
 <p><code>PATH</code> is a folder, an SRT, WebVTT or ASS file, a <code>.words.json</code> file or a
 <code>.vexy-subs.json</code> receipt. It defaults to the current folder.</p>
@@ -1282,7 +1390,7 @@ loading any model. Use it after you edit the words by hand.</p>
 </table>
 <p>See <a href="../beautify/">Beautification</a>.</p>
 <h2 id="translate"><code>translate</code><a class="headerlink" href="#translate" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>vexy-subs<span class="w"> </span>translate<span class="w"> </span>SRC<span class="w"> </span>DST<span class="w"> </span>LLM<span class="w"> </span>SOURCE_LANG<span class="w"> </span>TARGET_LANG<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>vexy-subs<span class="w"> </span>translate<span class="w"> </span>SRC<span class="w"> </span>DST<span class="w"> </span>LLM<span class="w"> </span>SOURCE_LANG<span class="w"> </span>TARGET_LANG<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </code></pre></div>
 <table>
 <thead>
@@ -1332,7 +1440,7 @@ loading any model. Use it after you edit the words by hand.</p>
 </table>
 <p>See <a href="../translation/">Translation</a>.</p>
 <h2 id="verify"><code>verify</code><a class="headerlink" href="#verify" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>vexy-subs<span class="w"> </span>verify<span class="w"> </span><span class="o">[</span>FOLDER<span class="o">]</span><span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>vexy-subs<span class="w"> </span>verify<span class="w"> </span><span class="o">[</span>FOLDER<span class="o">]</span><span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
 </code></pre></div>
 <p>Checks every <code>*.vexy-subs.json</code> receipt in <code>FOLDER</code> (default: the current
 folder).</p>
@@ -1374,19 +1482,19 @@ folder).</p>
 matching video has no subtitles. Without it, only the completed sets are checked.
 A folder with no completed set is an error.</p>
 <h2 id="llm"><code>llm</code><a class="headerlink" href="#llm" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>vexy-subs<span class="w"> </span>llm<span class="w"> </span>path
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>vexy-subs<span class="w"> </span>llm<span class="w"> </span>profiles<span class="w"> </span><span class="o">[</span>--config_file<span class="o">=</span>FILE<span class="o">]</span><span class="w"> </span><span class="o">[</span>--env_file<span class="o">=</span>FILE<span class="o">]</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>vexy-subs<span class="w"> </span>llm<span class="w"> </span>discover<span class="w"> </span><span class="o">[</span>--save<span class="o">]</span><span class="w"> </span><span class="o">[</span>--config_file<span class="o">=</span>FILE<span class="o">]</span><span class="w"> </span><span class="o">[</span>--env_file<span class="o">=</span>FILE<span class="o">]</span>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>vexy-subs<span class="w"> </span>llm<span class="w"> </span>check<span class="w"> </span>SPEC<span class="w"> </span><span class="o">[</span>--config_file<span class="o">=</span>FILE<span class="o">]</span><span class="w"> </span><span class="o">[</span>--env_file<span class="o">=</span>FILE<span class="o">]</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>vexy-subs<span class="w"> </span>llm<span class="w"> </span>path
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>vexy-subs<span class="w"> </span>llm<span class="w"> </span>profiles<span class="w"> </span><span class="o">[</span>--config_file<span class="o">=</span>FILE<span class="o">]</span><span class="w"> </span><span class="o">[</span>--env_file<span class="o">=</span>FILE<span class="o">]</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>vexy-subs<span class="w"> </span>llm<span class="w"> </span>discover<span class="w"> </span><span class="o">[</span>--save<span class="o">]</span><span class="w"> </span><span class="o">[</span>--config_file<span class="o">=</span>FILE<span class="o">]</span><span class="w"> </span><span class="o">[</span>--env_file<span class="o">=</span>FILE<span class="o">]</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>vexy-subs<span class="w"> </span>llm<span class="w"> </span>check<span class="w"> </span>SPEC<span class="w"> </span><span class="o">[</span>--config_file<span class="o">=</span>FILE<span class="o">]</span><span class="w"> </span><span class="o">[</span>--env_file<span class="o">=</span>FILE<span class="o">]</span>
 </code></pre></div>
 <p>See <a href="../configuration/#the-llm-commands">Configuration</a>.</p>
 <h2 id="doctor"><code>doctor</code><a class="headerlink" href="#doctor" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>vexy-subs<span class="w"> </span>doctor
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>vexy-subs<span class="w"> </span>doctor
 </code></pre></div>
 <p>Prints the version, platform, architecture, whether <code>ffmpeg</code> and <code>ffprobe</code> are
 on <code>PATH</code>, and whether the <code>apple</code> and <code>cluster</code> extras are installed.</p>
 <h2 id="version"><code>version</code><a class="headerlink" href="#version" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>vexy-subs<span class="w"> </span>version
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>vexy-subs<span class="w"> </span>version
 </code></pre></div>
 <p>Prints the installed package version.</p>
 
@@ -1396,6 +1504,24 @@ on <code>PATH</code>, and whether the <code>apple</code> and <code>cluster</code
 
 
 
+
+  <nav class="md-tags" >
+    
+      
+      
+      
+      
+        <a href="../topics/#tag:command-line" class="md-tag md-tag-icon">Command line</a>
+      
+    
+      
+      
+      
+      
+        <a href="../topics/#tag:developer-guide" class="md-tag md-tag-icon">Developer guide</a>
+      
+    
+  </nav>
 
 
 
