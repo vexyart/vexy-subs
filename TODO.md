@@ -36,3 +36,6 @@
 - [x] Complete independent combined review and offline-cache correction rereview.
 
 - [ ] Publish Audioflexy 1.0.3 and vexy-subs 1.0.6; verify registry artifacts, installed commands and deployed documentation.
+
+- [x] Tag/push 1.0.6, publish and verify GitHub archives and stable-pair installation.
+- [ ] Upload preserved 1.0.6 assets after required Audioflexy 1.0.3 reaches PyPI.

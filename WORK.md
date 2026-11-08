@@ -281,3 +281,16 @@ Release-preparation checks: `uv lock` succeeded; `./test.sh` passed 149 tests
 with 91.68% coverage and Ruff clean. Strict ProperDocs build passed into
 `/tmp/vexy-subs-release-docs-20261108`. No executable feature changes were made
 in this preparation pass. Registry publication remains pending.
+
+## Version 1.0.6 publication preparation
+
+Committed, tagged and pushed v1.0.6 with stable Audioflexy >=1.0.3 requirements.
+Published both stable archives on GitHub and verified downloaded assets against
+the built SHA-256 hashes. Source 149 tests, Ruff and strict docs passed. A fresh
+stable wheel-pair installation reports 1.0.6/1.0.3, shares provider types, and
+exports two speaker-coloured subtitle cues correctly.
+
+PyPI upload is held: the required new Audioflexy project was rejected with
+HTTP 429, "Too many new projects created". Publishing this consumer before the
+provider would leave an unavailable dependency. Exact checked 1.0.6 artifacts are
+retained privately and on GitHub; no consumer upload was attempted.

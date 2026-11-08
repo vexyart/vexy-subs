@@ -98,3 +98,7 @@ explicit; no publication is included.
 Stable dependency requirements and published-package installation guidance are
 ready. Publish Audioflexy 1.0.3 first, then vexy-subs 1.0.6; verify registry
 artifacts, installed commands and deployed documentation before marking done.
+
+Release 1.0.6 is tagged/pushed with verified GitHub artifacts and stable-pair
+installation. PyPI upload is held pending required Audioflexy 1.0.3 availability;
+provider upload failed with HTTP 429 new-project quota.
