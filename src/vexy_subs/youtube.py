@@ -41,9 +41,18 @@ def read_list(source: str) -> list[str]:
 def expand(source: str) -> list[str]:
     """Resolve playlists to their video URLs, preserving order without duplicates."""
     result = []
-    with client({"extract_flat": "in_playlist"}) as ydl:
+    ydl = client({"extract_flat": "in_playlist"})
+    from yt_dlp.utils import DownloadError
+
+    with ydl:
         for url in read_list(source):
-            info = ydl.extract_info(url, download=False)
+            if video_id(url) and "list=" not in url:
+                result.append(url)  # a single video needs no lookup
+                continue
+            try:
+                info = ydl.extract_info(url, download=False)
+            except DownloadError as exc:
+                raise RuntimeError(f"yt-dlp could not list {url}: {exc}") from exc
             if info.get("_type") != "playlist":
                 result.append(info.get("webpage_url") or url)
                 continue
@@ -64,9 +73,18 @@ def manual_english(info: dict) -> str:
     return min(keys, key=lambda key: (key != "en", key)) if keys else ""
 
 
+def video_id(url: str) -> str:
+    """The 11-character id of a YouTube watch, short or shorts URL; '' otherwise."""
+    match = re.search(r"(?:[?&]v=|youtu\.be/|/shorts/)([\w-]{11})(?![\w-])", url)
+    return match.group(1) if match else ""
+
+
 def download(url: str, folder: Path) -> Path:
     """Fetch video, info.json and human English captions; completed files are reused."""
     folder.mkdir(parents=True, exist_ok=True)
+    known = folder / f"{video_id(url)}.mp4"
+    if video_id(url) and known.is_file() and known.with_suffix(".info.json").is_file():
+        return known  # offline reuse: YouTube may demand sign-in for repeat requests
     options = {
         "format": FORMAT,
         "merge_output_format": "mp4",

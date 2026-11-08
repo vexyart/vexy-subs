@@ -4,7 +4,11 @@
 import itertools
 import math
 from dataclasses import replace
-from functools import lru_cache
+
+from vexy_audioflexy.speech.language import (
+    detect_language,
+    identifier,  # noqa: F401 - legacy public API
+)
 
 from .beautify_config import Config, load_config
 from .layout import balanced_lines, boundary_cost
@@ -14,32 +18,6 @@ from .typography import clean_words, typograph
 
 # Verified adult translated-subtitle profiles; SDH and children's limits differ.
 PROFILES = {"en": (42, 20), "de": (42, 17), "fr": (42, 17), "pl": (42, 17)}
-
-
-@lru_cache(maxsize=1)
-def identifier():
-    """Load langid's bundled 97-language Naive Bayes model once; no model download."""
-    from langid.langid import LanguageIdentifier, model
-
-    return LanguageIdentifier.from_modelstring(model, norm_probs=True)
-
-
-def detect_language(words: list[Word], language: str = "") -> dict:
-    """Sample across the recording, not only a short introductory greeting."""
-    sample = " ".join(w.text for w in words[:: max(1, len(words) // 2000)])[:20000]
-    detected, probability = (
-        identifier().classify(sample) if sample.strip() else ("und", 0)
-    )
-    chosen = (language or detected).lower().replace("_", "-").split("-")[0]
-    if chosen != "und" and chosen not in identifier().nb_classes:
-        raise ValueError(f"Unsupported language code: {chosen}")
-    return {
-        "language": chosen,
-        "detected": detected,
-        "probability": float(probability),
-        "overridden": bool(language),
-        "model": "langid-1.1.6-naive-bayes",
-    }
 
 
 def candidate(

@@ -1,7 +1,17 @@
 <!-- this_file: CHANGELOG.md -->
 # Changelog
 
-## Unreleased
+## 1.0.6
+- Keep optional FullStop package-version changes confined to punctuation cache
+  identity, preserving recognition/alignment/diarization stage reuse.
+- Delegate speech, alignment, diarization, punctuation, language identification
+  and POS tagging to Audioflexy >=1.0.3; preserve legacy imports and shared
+  Word/Turn identity. Keep subtitle editing/rendering local and model imports lazy.
+- Delegate inference extras to the provider, identify it in `doctor`/`models`,
+  and support both native environment prefixes and installed workspace adapters.
+- Fingerprint provider source/runtime changes in stage caches; keep language/POS
+  identity confined to editorial receipts so presentation changes reuse ASR.
+- Document published-package installation and optional local source/wheel installs.
 - `batch` accepts a YouTube video or playlist URL or a `.txt` URL list; yt-dlp
   downloads video, info.json and uploader-supplied English captions only.
   Titles and cleaned descriptions become tagged hints that reach every Qwen chunk.
@@ -15,6 +25,16 @@
 - Fixed forced alignment rejecting whole recordings when the aligner extrapolated
   a chunk's final word past the 30-second chunk end; the end is now clamped, while
   starts outside the chunk (beyond one 80 ms step) and disorder are still rejected.
+- Qwen chunks whose text is implausible for their length (more than 7 words/s:
+  the model reciting a long prompt over a short or quiet tail), that hit the token
+  cap, or that fail alignment are retried once without a prompt; if the retry
+  also fails, that chunk alone is dropped and listed in `alignment.dropped_chunks`
+  instead of failing the recording.
+- YouTube URLs whose `<id>.mp4` and `.info.json` are already in the download
+  folder are reused offline (YouTube may demand sign-in on repeat requests);
+  single-video URLs skip the playlist lookup.
+- Visual change detector v5: 6% changed area plus the 2 s hold check, so
+  text-only slide changes on dark backgrounds register while gestures do not.
 - Use Qwen3-ASR 1.7B MLX as the primary recognizer, with automatic Qwen audio.cpp
   selection when MLX is unavailable. Forward concise recognition vocabulary to
   every bounded MLX chunk; retain an explicit Whisper cross-check route.

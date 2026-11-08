@@ -28,3 +28,14 @@
 - [x] Shot and in-shot change detection, head/tail keyframes, visual analysis.
 - [x] Basecoat keyframe/subtitle scan page and batch index; agent skills.
 - [ ] Optional TransNetV2 backend if cut-heavy material needs it.
+
+- [x] Port reusable speech and editorial model APIs into Audioflexy.
+- [x] Replace subtitle model execution and preserve shared types/backend/cache contracts.
+- [x] Verify full source suite, exact archives, strict docs and fresh base installed synthetic/export/resume/offline behavior.
+- [x] Complete controller installed real-model/PATH verification and separate-process resume.
+- [x] Complete independent combined review and offline-cache correction rereview.
+
+- [ ] Publish Audioflexy 1.0.3 and vexy-subs 1.0.6; verify registry artifacts, installed commands and deployed documentation.
+
+- [x] Tag/push 1.0.6, publish and verify GitHub archives and stable-pair installation.
+- [ ] Upload preserved 1.0.6 assets after required Audioflexy 1.0.3 reaches PyPI.

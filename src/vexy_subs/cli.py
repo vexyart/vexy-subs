@@ -10,6 +10,7 @@ import re
 import shutil
 import subprocess
 import sys
+from importlib.metadata import version
 from pathlib import Path
 
 from . import __version__, page, qwen, youtube
@@ -96,6 +97,10 @@ class CLI:
         from .punctuation import MODEL
 
         return {
+            "provider": {
+                "package": "vexy-audioflexy",
+                "version": version("vexy-audioflexy"),
+            },
             "asr": {
                 "primary": qwen.MODEL,
                 "fallback": "audio.cpp/qwen3_asr (1.7B Q8_0)",
@@ -116,19 +121,31 @@ class CLI:
         return {
             "version": __version__,
             "auth_required": False,
+            "inference_provider": "vexy-audioflexy",
+            "inference_provider_version": version("vexy-audioflexy"),
             "platform": platform.system(),
             "architecture": platform.machine(),
             "ffmpeg": bool(shutil.which("ffmpeg")),
             "ffprobe": bool(shutil.which("ffprobe")),
-            "inference_installed": all(
-                importlib.util.find_spec(p) is not None
-                for p in ("mlx_audio", "deepmultilingualpunctuation")
+            "inference_installed": qwen.mlx_available()
+            or bool(
+                shutil.which(
+                    os.getenv("VEXY_AUDIOFLEXY_AUDIOCPP_BIN")
+                    or os.getenv("VEXY_SUBS_AUDIOCPP_BIN", "audiocpp_cli")
+                )
             ),
+            "punctuation_installed": importlib.util.find_spec(
+                "deepmultilingualpunctuation"
+            )
+            is not None,
             "asr_backend": qwen.select_backend("auto"),
             "asr_model": qwen.MODEL,
             "mlx_available": qwen.mlx_available(),
             "audiocpp_installed": bool(
-                shutil.which(os.getenv("VEXY_SUBS_AUDIOCPP_BIN", "audiocpp_cli"))
+                shutil.which(
+                    os.getenv("VEXY_AUDIOFLEXY_AUDIOCPP_BIN")
+                    or os.getenv("VEXY_SUBS_AUDIOCPP_BIN", "audiocpp_cli")
+                )
             ),
             "cluster_installed": importlib.util.find_spec("diarize") is not None,
         }

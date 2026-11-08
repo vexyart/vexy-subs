@@ -166,3 +166,131 @@ match the worktree. Built development artifacts locally; no release/push was mad
 - Use MaterialX search, inherited metadata and a topic index; keep ordered navigation in awesome-nav.
 - The documentation wrapper installs the plugins required by this site.
 - Strict documentation build and rendered output checks passed.
+
+## 2026-10-25: visual scan pages and YouTube batches (task 101a)
+
+- Transplanted ideas from reelpack-alpha (adaptive hist/ECR/pixel cut selector), framecheck (LK flow + RANSAC motion labels, faces, palette) and video-breakdown (shot enrichment) into `visual.py`; added in-shot content-change detection for slide talks.
+- Real corpus: 13 David Berlow talks (11.2 h). Tuning on Ec65 (slide talk) and S28 (gesturing speaker): detector v5 gives 73 and 416 segments; v1 over-split gestures (1858), v4 under-split slides (44).
+- Found Qwen reciting the long YouTube description over a 5 s final chunk (120 words); added the plausibility guard, bare-prompt retry and `dropped_chunks`.
+- YouTube began demanding sign-in for repeat lookups; already-downloaded videos are now reused offline.
+- Full suite: 144 passed, 89.8% coverage, ruff clean.
+
+
+## Audioflexy consumer integration — 2026-11-08
+
+Replaced model execution with `vexy_audioflexy.speech` APIs. Seven legacy engine
+modules remain identity-preserving compatibility imports so existing callers and
+monkeypatches reach the actual provider globals. Words and turns are provider
+classes; subtitle cues, source hint/reference parsing, editorial rules and exports
+remain local. All prior backend signatures, reference chunk bounds, lexical and
+timing validation, Qwen retry/drop behavior, native fingerprints and error
+propagation are retained. Both environment prefixes work; Audioflexy settings
+have precedence. Workspace mode defaults to installed provider resources while
+explicit legacy roots remain supported.
+
+Model extras delegate to the provider; the portable minimum is >=1.0.3.dev0
+because published 1.0.2 lacks these APIs. Checkout uv uses a relative sibling
+source override. Doctor/models identify the provider and distinguish optional
+FullStop availability from the actual ASR route. Provider speech implementation
+bytes and installed runtime versions identify stage caches. Punctuation has its
+own identity; language/POS bytes plus langid/NLTK versions affect only editorial
+receipts. Regression checks prove punctuation/editorial changes reuse ASR.
+
+Baseline: 144 tests passed, 89.81% subs coverage, Ruff clean. Final source suite:
+148 passed, 91.68% subs coverage, Ruff clean. Existing regression tests remain;
+one obsolete unconfigured-workspace expectation now checks installed resources.
+New engine-boundary integration uses actual library recognition, alignment and
+diarization functions with only engine load/generate fakes, forwarding vocabulary,
+metadata and per-chunk references through exports, verification, resume and offline
+render. This is routing/type/cache evidence, not acoustic accuracy evidence.
+Audioflexy's separate final suite passed 585 tests and its example (controller).
+
+Built both latest wheels and source archives; all four passed Twine and exact
+archive privacy/portable-metadata checks. Fresh Python 3.12 base-only installation
+outside both source trees passed the same actual-library synthetic integration,
+resume, two-speaker SRT/VTT/ASS verification, CLI render, doctor, models and help.
+MLX, Torch, Transformers, diarize and FullStop are absent in this base environment.
+Strict documentation build passed. Private artifact paths, hashes and command
+results are retained in the integration task report, outside distribution inputs.
+
+Controller real source inference passed: two cues, one anonymous speaker, all
+three formats verified; resume skipped inference. The local native audio.cpp
+build rejects `nemotron_3_diar`; this existing runtime compatibility limit remains
+an explicit error, not a successful native acceptance claim. Controller real installed CLI acceptance also passed outside both checkouts:
+exact wheel pair with Apple/cluster extras installed on PATH, auto selected MLX,
+two cues and one anonymous voice across ASS/VTT/SRT, CLI verify one set. A separate
+CLI process resumed with verified SKIP in 1.826 s and a byte-identical receipt;
+installed module paths and provider alias identity were checked. Durable evidence
+is retained privately. Final independent combined review remains controller-owned.
+No commit, push, publication or model-storage migration was performed.
+
+
+Independent review found one cache-independence defect: the optional FullStop
+package version was included in speech runtime identity. Restricted that package
+to punctuation identity; shared speech runtimes remain. A version-only regression
+failed before the fix and now passes, and engine-boundary integration proves
+recognition/alignment/diarization stages remain reused. Focused provider suite:
+5 passed in 2.23 s. Final full source suite: 149 passed in 24.49 s, 91.68% coverage,
+Ruff clean. Refreshed consumer artifacts and installed synthetic acceptance are
+recorded in the private task report. Final independent re-review remains pending.
+
+## Final installed integration verification
+
+The final exact consumer/provider wheels were installed on PATH with the existing
+Apple and cluster extras. From outside both checkouts, every installed Python
+file matched its wheel bytes. The real default MLX Qwen/forced-alignment/Nemotron
+pipeline processed the synthetic short recording into two verified cues and one
+anonymous voice in SRT, WebVTT and ASS. First run: 21.741 seconds; a separate CLI
+resume: 0.950 seconds, verified SKIP and byte-identical receipt.
+
+Final source evidence: 149 consumer tests, 91.68% coverage and Ruff; 585 provider
+tests and its example. Exact wheel/sdist privacy, portable dependency metadata,
+clean base-only installed synthetic engine-boundary/cache tests and strict docs
+passed. Private exact artifacts and runtime receipts are retained outside public
+distributions. Whole-scope independent review remains pending. Native Nemotron's
+existing local binary compatibility limit remains; long-form quality is not
+established by these short smoke checks. No publication was performed.
+
+## Integration completion
+
+Independent whole-goal review and the scoped correction review passed with no
+material open findings. The final provider suite passes 586 tests and its example;
+the unchanged consumer suite passes 149 tests with 91.68% coverage and Ruff clean.
+The provider now searches existing subtitle NLTK caches before downloading. Real
+installed NLTK succeeds with legacy-only weights and downloads forbidden, without
+changing owner weights. Final installed Python bytes match the checked wheels.
+An editorial-only provider update reused unchanged real recognition/alignment/
+diarization caches; refreshed captions verify and a separate CLI resume skips
+inference. Exact archives, clean base-installed synthetic integration and strict
+docs passed. Recovery evidence and exact wheels are retained privately.
+
+This completes the local integration. The required API remains an unpublished
+development build; installation uses the documented local wheel pair. The local
+native Nemotron binary remains incompatible with that model family. Short real
+MLX smoke checks establish integration, not universal long-form model quality.
+No commit, push, publication or model-storage migration was performed.
+
+## 1.0.6 release preparation
+
+Prepared stable Audioflexy >=1.0.3 requirements and published-package installation
+guidance, retaining relative checkout overrides and local source/wheel options.
+Earlier unpublished-build statements above describe the completed local phase.
+Publication and installed registry artifact verification are pending.
+
+Release-preparation checks: `uv lock` succeeded; `./test.sh` passed 149 tests
+with 91.68% coverage and Ruff clean. Strict ProperDocs build passed into
+`/tmp/vexy-subs-release-docs-20261108`. No executable feature changes were made
+in this preparation pass. Registry publication remains pending.
+
+## Version 1.0.6 publication preparation
+
+Committed, tagged and pushed v1.0.6 with stable Audioflexy >=1.0.3 requirements.
+Published both stable archives on GitHub and verified downloaded assets against
+the built SHA-256 hashes. Source 149 tests, Ruff and strict docs passed. A fresh
+stable wheel-pair installation reports 1.0.6/1.0.3, shares provider types, and
+exports two speaker-coloured subtitle cues correctly.
+
+PyPI upload is held: the required new Audioflexy project was rejected with
+HTTP 429, "Too many new projects created". Publishing this consumer before the
+provider would leave an unavailable dependency. Exact checked 1.0.6 artifacts are
+retained privately and on GitHub; no consumer upload was attempted.
