@@ -13,7 +13,8 @@ tags: [Installation]
 - For transcription: FFmpeg with `ffprobe` on `PATH`; Apple Silicon for MLX,
   or an installed audio.cpp binary and GGUF models on other hosts.
 
-The base package installs without any inference library. It can beautify,
+The base package installs the shared `vexy-audioflexy[editorial]>=1.0.3` APIs
+without GPU or speech model runtimes. It can beautify,
 translate, render and verify subtitles on any platform that runs Python 3.12.
 
 ## Choose the extras
@@ -34,10 +35,10 @@ translate, render and verify subtitles on any platform that runs Python 3.12.
     uv tool install 'vexy-subs[apple,cluster]'
     ```
 
-    To install from a source checkout instead, run this in the repository folder:
+    To install from sibling source checkouts instead, run this in the repository folder:
 
     ```bash
-    uv tool install './[apple,cluster]'
+    uv tool install --with ../vexy-audioflexy-project/vexy-audioflexy './[apple,cluster]'
     ```
 
     For beautification, translation and rendering only, the base package is
@@ -68,7 +69,10 @@ translate, render and verify subtitles on any platform that runs Python 3.12.
     }
     ```
 
-    `inference_installed` is `true` when `mlx_audio` and `deepmultilingualpunctuation` are installed.
+    `inference_installed` is `true` when MLX is usable or the native executable is found.
+    This does not certify installed model weights or native model-family support.
+    `inference_provider` and `inference_provider_version` identify Audioflexy;
+    `punctuation_installed` reports the separate optional FullStop package.
     `mlx_available` checks the actual MLX runtime; `asr_backend` reports the
     automatic route, and `audiocpp_installed` checks the native executable. `cluster_installed` is `true`
     when the `diarize` package is installed.
@@ -115,3 +119,21 @@ errors; inference errors do not trigger an unrelated ASR fallback.
 
 For English, beautification also uses NLTK's small averaged-perceptron
 part-of-speech tagger. Its weights download once into the user cache folder.
+
+## Local build installation
+
+The published package requires Audioflexy 1.0.3 or later for shared speech APIs.
+To test local builds, install the exact wheels from both source repositories:
+
+```bash
+uv tool install --with ./wheels/vexy_audioflexy-VERSION-py3-none-any.whl ./wheels/vexy_subs-VERSION-py3-none-any.whl
+```
+
+Replace both filenames with the built artifacts. For Apple inference and CPU
+clustering, quote the consumer wheel filename with an `[apple,cluster]` suffix. The `apple`, `native` and `cluster` extras delegate their model
+runtimes to Audioflexy's matching extras. Existing `VEXY_SUBS_*` settings remain
+supported; matching `VEXY_AUDIOFLEXY_*` settings take precedence. Model files and
+the native executable stay external. Some audio.cpp builds reject
+`nemotron_3_diar`; that error propagates without changing ASR families.
+An empty workspace root uses installed Audioflexy adapters; an explicit legacy
+workspace remains supported.

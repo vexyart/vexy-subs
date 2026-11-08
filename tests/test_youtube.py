@@ -77,6 +77,40 @@ def test_expand_when_playlist_then_entries_in_order(monkeypatch):
     assert found == ["https://y/a", "https://www.youtube.com/watch?v=b"]
 
 
+def test_video_id_when_watch_short_or_other_url_then_id_or_empty():
+    assert youtube.video_id("https://www.youtube.com/watch?v=K-ruvv6P8sk&t=3") == (
+        "K-ruvv6P8sk"
+    )
+    assert youtube.video_id("https://youtu.be/Ec65S6stpiM") == "Ec65S6stpiM"
+    assert youtube.video_id("https://www.youtube.com/playlist?list=PL1") == ""
+
+
+def test_download_when_already_fetched_then_offline_and_expand_skips_lookup(
+    tmp_path, monkeypatch
+):
+    def offline(options):
+        raise AssertionError("network used")
+
+    (tmp_path / "Ec65S6stpiM.mp4").write_bytes(b"")
+    (tmp_path / "Ec65S6stpiM.info.json").write_text("{}")
+    monkeypatch.setattr(youtube, "client", offline)
+    url = "https://youtu.be/Ec65S6stpiM"
+    assert youtube.download(url, tmp_path) == tmp_path / "Ec65S6stpiM.mp4"
+
+    class Client:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def extract_info(self, url, download):
+            raise AssertionError("lookup used")
+
+    monkeypatch.setattr(youtube, "client", lambda options: Client())
+    assert youtube.expand(url) == [url]
+
+
 def test_download_when_ytdlp_fails_or_no_file_then_clear_errors(tmp_path, monkeypatch):
     utils = pytest.importorskip("yt_dlp.utils")
     seen = {}

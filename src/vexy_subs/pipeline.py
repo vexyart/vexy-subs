@@ -23,6 +23,7 @@ from .io import decode, probe, save, sha256, stage
 from .postprocess import frame_rate
 from .punctuation import MODEL, restore
 from .speakers import assign
+from .speech_identity import implementation
 from .types import Turn, Word
 
 EXTENSIONS = (".srt", ".vtt", ".ass", ".words.json")
@@ -68,7 +69,10 @@ def run(
     if (
         diar_backend == "auto"
         and not qwen.mlx_available()
-        and os.getenv("VEXY_SUBS_NEMOTRON_MODEL")
+        and (
+            os.getenv("VEXY_SUBS_NEMOTRON_MODEL")
+            or os.getenv("VEXY_AUDIOFLEXY_NEMOTRON_MODEL")
+        )
     ):
         diar_backend = "audiocpp"
     if (
@@ -121,6 +125,17 @@ def run(
         "speaker_names": names,
         "recognition_context": "qwen-lexicon-v2",
         "punctuation_policy": 3,
+        "inference_implementation": implementation(
+            "inference",
+            "qwen",
+            "alignment",
+            "audiocpp",
+            "workspace",
+            "hints",
+            "types",
+            "io",
+        ),
+        "punctuation_implementation": implementation("punctuation", "hints", "types"),
     }
     if reference_receipt:
         options["reference"] = reference_receipt
@@ -159,6 +174,7 @@ def run(
     if config:
         options["beautification"] = {
             **config.receipt(),
+            "implementation": implementation("language", "syntax"),
             "language": beautify_language,
             "fps": rate,
         }
@@ -168,7 +184,12 @@ def run(
             {
                 k: v
                 for k, v in options.items()
-                if k not in {"punctuation_policy", "beautification"}
+                if k
+                not in {
+                    "punctuation_policy",
+                    "punctuation_implementation",
+                    "beautification",
+                }
             },
             sort_keys=True,
         ).encode()

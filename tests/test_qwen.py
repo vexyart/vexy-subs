@@ -114,6 +114,51 @@ def test_mlx_when_audio_spans_chunks_then_aligns_each_and_offsets_times(
     assert raw["alignment"]["word_timestamps"] == "forced_alignment"
 
 
+def test_mlx_when_prompt_recited_then_retries_bare_and_drops_hopeless_chunk(
+    tmp_path, monkeypatch
+):
+    import sys
+
+    from vexy_subs import qwen
+
+    wav = tmp_path / "input.wav"
+    with wave.open(str(wav), "wb") as out:
+        out.setparams((1, 2, 16000, 0, "NONE", "not compressed"))
+        out.writeframes(b"\0\0" * 496000)  # 30 s chunk + 1 s tail
+    prompts = []
+
+    def generate(audio, **kwargs):
+        prompts.append(kwargs["system_prompt"])
+        recited = kwargs["system_prompt"] or "31" in str(audio)
+        return N(text="word " * 300 if recited else "API works.", generation_tokens=3)
+
+    aligner = N(
+        generate=lambda **kwargs: N(
+            items=[
+                N(text="API", start_time=0, end_time=0.4),
+                N(text="works", start_time=0.4, end_time=0.8),
+            ]
+        )
+    )
+    monkeypatch.setitem(
+        sys.modules,
+        "mlx_audio.stt",
+        N(
+            load=lambda model, **kwargs: (
+                aligner if "Aligner" in model else N(generate=generate)
+            )
+        ),
+    )
+    monkeypatch.setattr(
+        qwen, "chunks", lambda wav, folder: iter([("a00", 0, 30), ("a31", 30, 1)])
+    )
+    words, raw = qwen.transcribe(wav, "Terms: API.", "en")
+    assert prompts[0] and prompts[1] is None, "Recited text triggers one bare retry"
+    assert [w.text for w in words] == ["API", "works."]
+    assert raw["segments"][1]["text"] == ""
+    assert raw["alignment"]["dropped_chunks"][0]["start"] == 30
+
+
 def test_native_when_outputs_present_then_preserves_text_and_sample_times(
     tmp_path, monkeypatch
 ):

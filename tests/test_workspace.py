@@ -4,8 +4,6 @@
 import json
 from pathlib import Path
 
-import pytest
-
 
 def test_workspace_recognition_when_worker_returns_words_then_keeps_native_times(
     tmp_path, monkeypatch
@@ -49,12 +47,12 @@ def test_workspace_recognition_when_worker_returns_words_then_keeps_native_times
     )
 
 
-def test_workspace_when_unconfigured_then_rejects_before_inference(monkeypatch):
+def test_workspace_when_unconfigured_then_uses_installed_provider(monkeypatch):
     from vexy_subs import workspace
 
     monkeypatch.delenv("VEXY_SUBS_MODEL_WORKSPACE", raising=False)
-    with pytest.raises(FileNotFoundError):
-        workspace.root_path("")
+    monkeypatch.delenv("VEXY_AUDIOFLEXY_MODEL_WORKSPACE", raising=False)
+    assert (workspace.adapter_root() / "tools/speech-issue301.py").is_file()
 
 
 def test_workspace_signature_when_worker_changes_then_invalidates_stage(tmp_path):

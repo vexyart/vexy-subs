@@ -7,9 +7,10 @@ Generate local video subtitles with a consistent colour for each diarized voice,
 sentence punctuation, and your own recognition vocabulary.
 
 ```bash
+# Published package, with Apple inference and CPU clustering:
 uv tool install 'vexy-subs[apple,cluster]'
-# From a checkout before the first release:
-uv tool install './[apple,cluster]'
+# Or from sibling source checkouts:
+uv tool install --with ../vexy-audioflexy-project/vexy-audioflexy './[apple,cluster]'
 vexy-subs doctor
 vexy-subs transcribe clip.mp4 --prompt_file=hints.md --output_dir=subtitles
 vexy-subs batch videos --prompt_dir=hints --output_dir=subtitles
@@ -20,12 +21,29 @@ vexy-subs verify subtitles --source_dir=videos
 vexy-subs translate subtitles/clip.ass subtitles/clip.pl.ass PROFILE English Polish
 ```
 
-The base package installs without inference libraries. Install the `apple` extra
+The base package uses `vexy-audioflexy[editorial]>=1.0.3` for shared speech,
+language and POS APIs, without installing GPU or speech model runtimes. Install the `apple` extra
 for local inference on Apple Silicon, plus FFmpeg and ffprobe on PATH. The first
 run downloads open model weights. No API key or paid inference service is needed;
 only `translate` and the optional LLM post-fix call an endpoint you configure.
 The base package can render manually edited timed words without model inference:
 `vexy-subs render edited.words.json subtitles/edited`.
+
+Audioflexy 1.0.3 or later supplies the shared speech API. To install locally built
+artifacts instead, build both repositories and install their exact wheels together
+(substitute the actual filenames):
+
+```bash
+uv tool install --with ./wheels/vexy_audioflexy-VERSION-py3-none-any.whl ./wheels/vexy_subs-VERSION-py3-none-any.whl
+# For Apple inference/clustering, quote the consumer wheel path with [apple,cluster].
+```
+
+Checkout development uses a relative uv source override to the sibling
+`vexy-audioflexy-project/vexy-audioflexy` checkout. Wheel dependencies contain
+package requirements, never that checkout path. `doctor` and `models` identify
+the installed provider. Existing `VEXY_SUBS_*` model settings still work;
+`VEXY_AUDIOFLEXY_*` equivalents take precedence. An empty workspace root uses
+Audioflexy's installed ASR adapters; explicit legacy workspace roots remain valid.
 
 **Default stack:** Qwen3-ASR 1.7B (MLX 8-bit), Qwen3 ForcedAligner 0.6B,
 Nemotron diarization, preserved ASR punctuation and audited local editing.

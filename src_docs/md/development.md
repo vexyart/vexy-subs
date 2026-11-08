@@ -1,3 +1,4 @@
+<!-- this_file: src_docs/md/development.md -->
 # Development
 
 ## Set up
@@ -9,7 +10,10 @@
     cd vexy-subs
     ```
 
-2. Run the tests. uv creates the environment with the `test` extra:
+2. Place the Audioflexy source at the sibling
+   `vexy-audioflexy-project/vexy-audioflexy` path used by `[tool.uv.sources]`.
+   This development override is relative and is excluded from wheel dependencies.
+   Run the tests. uv creates the environment with the `test` extra:
 
     ```bash
     ./test.sh
@@ -26,9 +30,9 @@ The tests use synthetic fixtures only. They do not need the `apple` extra.
 | --- | --- |
 | `cli.py` | Fire commands: `render`, `batch`, `verify`, `doctor`, `llm` |
 | `pipeline.py` | the `transcribe` pipeline and its resumable stages |
-| `inference.py` | MLX Whisper recognition and diarization |
-| `alignment.py` | timestamp repair with a forced aligner |
-| `punctuation.py` | punctuation restoration |
+| `inference.py`, `qwen.py`, `audiocpp.py`, `workspace.py` | compatibility aliases to Audioflexy speech APIs |
+| `alignment.py`, `punctuation.py`, `syntax.py` | compatibility aliases to Audioflexy alignment, punctuation and POS |
+| `speech_identity.py` | provider source/runtime fingerprints for stage receipts |
 | `speakers.py` | assigning words to speakers |
 | `hints.py` | reading hint files and `Names:`/`Terms:` vocabulary |
 | `cues.py` | the plain cue layout used with `--beautify=False` |
@@ -86,3 +90,11 @@ Run `./test.sh` before you publish; `publish.sh` does not run the tests.
 [FullStop punctuation](https://github.com/oliverguhr/deepmultilingualpunctuation),
 [CPU diarization](https://github.com/notch-up/diarize),
 [WebVTT](https://developer.mozilla.org/en-US/docs/Web/API/WebVTT_API).
+
+Provider speech source bytes and installed runtime versions identify inference
+caches. Punctuation has its own implementation identity; language/POS bytes and
+langid/NLTK versions belong only to the beautification receipt. Subtitle editorial
+or layout changes therefore leave recognition stages reusable. Changed settings
+still require `--force` before replacing existing output. Engine-boundary tests
+exercise real library functions with fake model loaders/generators; they do not
+claim acoustic model quality. Real inference acceptance is recorded privately.

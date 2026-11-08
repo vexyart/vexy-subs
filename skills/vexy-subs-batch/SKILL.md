@@ -7,7 +7,9 @@ description: Batch-subtitle a folder of videos, a YouTube video or playlist, or 
 # vexy-subs batch
 
 Requires `vexy-subs[apple,cluster,video,youtube]` (or `audiocpp` setup) plus
-FFmpeg/ffprobe. Check with `vexy-subs doctor`.
+FFmpeg/ffprobe. Shared inference comes from `vexy-audioflexy>=1.0.3.dev0`;
+until that API is released, install the two built wheels together as described
+in the README. Check the provider and backend with `vexy-subs doctor`.
 
 ```bash
 # A text file: one URL per line, # comments allowed; playlists expand in order.
@@ -20,7 +22,10 @@ What happens per video:
 
 1. yt-dlp downloads `<id>.mp4` (≤1080p), `<id>.info.json` and only
    uploader-supplied English captions (`<id>.en*.vtt`). Automatic captions are
-   never requested or used. Completed downloads are reused.
+   never requested or used. Completed downloads are reused offline, so a rerun
+   works even when YouTube asks for sign-in ("confirm you're not a bot"); new
+   downloads behind that wall need yt-dlp run by hand with cookies, then a batch
+   over the local folder. A `watch?v=…&list=…` URL is treated as a playlist.
 2. `<id>.hints.md` gets `Title:` and `Description:` lines (links, chapter stamps
    and hashtags removed, description capped). These reach every Qwen ASR chunk.
    With `--prompt_dir`, the user's own hint file is prepended.

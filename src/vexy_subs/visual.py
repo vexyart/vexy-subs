@@ -23,7 +23,8 @@ KEYFRAME_OFFSET = 0.25
 KEYFRAME_THRESHOLD = 0.03
 CHANGE_AREA = 0.06
 CHANGE_PIXEL = 0.08
-MIN_SEGMENT_SECONDS = 2.0
+MIN_SEGMENT_SECONDS = 4.0
+HOLD_SAMPLES = 4
 THUMB_SIZE = (64, 36)
 
 
@@ -286,9 +287,11 @@ def changes(thumbs: list, cuts: list, count: int, fps: float) -> dict[int, int]:
                 and changed(thumbs[stop + 1][1], thumbs[stop][1]) >= CHANGE_AREA / 4
             ):
                 stop += 1
-            if (
-                stop + 1 < len(thumbs)
-                and changed(thumbs[stop + 1][1], thumbs[stop][1]) < CHANGE_AREA / 2
+            # Slides hold still; gesturing speakers do not.
+            hold = thumbs[stop + 1 : stop + 1 + HOLD_SAMPLES]
+            if len(hold) == HOLD_SAMPLES and all(
+                frame_ < end and changed(view, thumbs[stop][1]) < CHANGE_AREA / 2
+                for frame_, view in hold
             ):
                 # Walk back to the last still view, so the previous tail precedes a fade.
                 onset = k
@@ -299,6 +302,8 @@ def changes(thumbs: list, cuts: list, count: int, fps: float) -> dict[int, int]:
                     >= CHANGE_AREA / 4
                 ):
                     onset -= 1
+                if thumbs[onset][0] - last < gap:
+                    continue
                 found[thumbs[onset][0]] = thumbs[stop][0]
                 anchor, last = thumbs[stop], thumbs[onset][0]
     return found
@@ -424,7 +429,7 @@ def run(
     settings = {
         "version": __version__,
         "input_sha256": sha256(source),
-        "detector": "reelpack-adaptive-hist-ecr-pixel-v1+content-change-v3",
+        "detector": "reelpack-adaptive-hist-ecr-pixel-v1+content-change-v5",
         "min_shot": min_shot,
         "keyframe_offset": keyframe_offset,
         "keyframe_threshold": keyframe_threshold,

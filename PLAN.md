@@ -79,3 +79,22 @@ Plan and outcome:
 3. Connect Nemotron diarization and cluster fallback, punctuation, audited editing and exports.
 4. Remove rejected recognition families from package choices; preserve historical private evidence.
 5. Verify failure/fallback/cache contracts, real MLX/native pipelines, docs and clean distributions.
+
+## Audioflexy integration
+
+See `docs/plans/audioflexy-integration.md`.
+
+Reusable APIs and consumer source integration are implemented. Source regression
+suite: 149 passed, 91.68% coverage, Ruff clean. Both exact wheels/source archives
+and strict docs build pass; clean base-only installed synthetic inference/export,
+resume and offline CLI checks pass. Controller real source smoke also passes.
+Controller installed real-model/PATH verification passed, including separate-process
+resume with an unchanged receipt. Independent combined review and the scoped offline-cache correction
+review passed. Existing native Nemotron runtime rejection remains
+explicit; no publication is included.
+
+## 1.0.6 publication
+
+Stable dependency requirements and published-package installation guidance are
+ready. Publish Audioflexy 1.0.3 first, then vexy-subs 1.0.6; verify registry
+artifacts, installed commands and deployed documentation before marking done.

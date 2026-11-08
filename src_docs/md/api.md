@@ -105,3 +105,16 @@ async def main() -> None:
 
 asyncio.run(main())
 ```
+
+## Shared speech types and compatibility imports
+
+Recognition, acoustic alignment, diarization, punctuation, language identification
+and POS tagging run through `vexy_audioflexy.speech` from Audioflexy 1.0.3 or later.
+Normal installation resolves this provider automatically; local source and wheel
+installation options are described in [Installation](installation.md). The existing
+`vexy_subs.qwen`, `inference`, `alignment`, `audiocpp`, `punctuation`, `workspace`
+and `syntax` modules alias the provider modules, preserving function signatures
+and module identity. `vexy_subs.types.Word` and `Turn` are the same mutable-word
+and immutable-turn classes exported by Audioflexy. `Cue` remains subtitle-specific.
+Subtitle parsing, timing attribution, editorial rules, layout and exports remain
+in vexy-subs. Base imports and offline `render --beautify=False` load no models.

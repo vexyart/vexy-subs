@@ -1,6 +1,12 @@
 <!-- this_file: DEPENDENCIES.md -->
 # Dependencies
 
+Shared model provider: `vexy-audioflexy[editorial]>=1.0.3` supplies speech,
+language and POS APIs. Normal package installation resolves the provider; install
+both exact wheels together when testing local builds. Checkout uv uses a relative sibling source
+override; built wheel requirements are portable. Existing model libraries below
+are provided through Audioflexy extras, rather than duplicated package pins.
+
 Core: Fire (CLI), pysubs2 (ASS/SRT serialization and parsing), webvtt-py (WebVTT
 voices/styles), intervaltree (efficient word-to-speaker activity lookup).
 
