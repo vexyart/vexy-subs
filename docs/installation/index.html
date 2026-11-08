@@ -413,6 +413,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#local-build-installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Local build installation
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -799,6 +810,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#local-build-installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Local build installation
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -826,7 +848,8 @@
 <li>For transcription: FFmpeg with <code>ffprobe</code> on <code>PATH</code>; Apple Silicon for MLX,
   or an installed audio.cpp binary and GGUF models on other hosts.</li>
 </ul>
-<p>The base package installs without any inference library. It can beautify,
+<p>The base package installs the shared <code>vexy-audioflexy[editorial]&gt;=1.0.3</code> APIs
+without GPU or speech model runtimes. It can beautify,
 translate, render and verify subtitles on any platform that runs Python 3.12.</p>
 <h2 id="choose-the-extras">Choose the extras<a class="headerlink" href="#choose-the-extras" title="Permanent link">&para;</a></h2>
 <table>
@@ -867,8 +890,8 @@ translate, render and verify subtitles on any platform that runs Python 3.12.</p
    both diarization back-ends:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </span><span class="s1">'vexy-subs[apple,cluster]'</span>
 </code></pre></div>
-<p>To install from a source checkout instead, run this in the repository folder:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>uv<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </span><span class="s1">'./[apple,cluster]'</span>
+<p>To install from sibling source checkouts instead, run this in the repository folder:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>uv<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </span>--with<span class="w"> </span>../vexy-audioflexy-project/vexy-audioflexy<span class="w"> </span><span class="s1">'./[apple,cluster]'</span>
 </code></pre></div>
 <p>For beautification, translation and rendering only, the base package is
 enough:</p>
@@ -891,7 +914,10 @@ enough:</p>
 <a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">  </span><span class="nt">"cluster_installed"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="p">}</span>
 </code></pre></div>
-<p><code>inference_installed</code> is <code>true</code> when <code>mlx_audio</code> and <code>deepmultilingualpunctuation</code> are installed.
+<p><code>inference_installed</code> is <code>true</code> when MLX is usable or the native executable is found.
+This does not certify installed model weights or native model-family support.
+<code>inference_provider</code> and <code>inference_provider_version</code> identify Audioflexy;
+<code>punctuation_installed</code> reports the separate optional FullStop package.
 <code>mlx_available</code> checks the actual MLX runtime; <code>asr_backend</code> reports the
 automatic route, and <code>audiocpp_installed</code> checks the native executable. <code>cluster_installed</code> is <code>true</code>
 when the <code>diarize</code> package is installed.</p>
@@ -950,6 +976,19 @@ available, otherwise native Qwen. Missing native prerequisites produce setup
 errors; inference errors do not trigger an unrelated ASR fallback.</p>
 <p>For English, beautification also uses NLTK's small averaged-perceptron
 part-of-speech tagger. Its weights download once into the user cache folder.</p>
+<h2 id="local-build-installation">Local build installation<a class="headerlink" href="#local-build-installation" title="Permanent link">&para;</a></h2>
+<p>The published package requires Audioflexy 1.0.3 or later for shared speech APIs.
+To test local builds, install the exact wheels from both source repositories:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>uv<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </span>--with<span class="w"> </span>./wheels/vexy_audioflexy-VERSION-py3-none-any.whl<span class="w"> </span>./wheels/vexy_subs-VERSION-py3-none-any.whl
+</code></pre></div>
+<p>Replace both filenames with the built artifacts. For Apple inference and CPU
+clustering, quote the consumer wheel filename with an <code>[apple,cluster]</code> suffix. The <code>apple</code>, <code>native</code> and <code>cluster</code> extras delegate their model
+runtimes to Audioflexy's matching extras. Existing <code>VEXY_SUBS_*</code> settings remain
+supported; matching <code>VEXY_AUDIOFLEXY_*</code> settings take precedence. Model files and
+the native executable stay external. Some audio.cpp builds reject
+<code>nemotron_3_diar</code>; that error propagates without changing ASR families.
+An empty workspace root uses installed Audioflexy adapters; an explicit legacy
+workspace remains supported.</p>
 
 
 

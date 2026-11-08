@@ -839,6 +839,7 @@
   
 
 
+<!-- this_file: src_docs/md/development.md -->
 <h1 id="development">Development<a class="headerlink" href="#development" title="Permanent link">&para;</a></h1>
 <h2 id="set-up">Set up<a class="headerlink" href="#set-up" title="Permanent link">&para;</a></h2>
 <ol>
@@ -849,7 +850,10 @@
 </code></pre></div>
 </li>
 <li>
-<p>Run the tests. uv creates the environment with the <code>test</code> extra:</p>
+<p>Place the Audioflexy source at the sibling
+   <code>vexy-audioflexy-project/vexy-audioflexy</code> path used by <code>[tool.uv.sources]</code>.
+   This development override is relative and is excluded from wheel dependencies.
+   Run the tests. uv creates the environment with the <code>test</code> extra:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>./test.sh
 </code></pre></div>
 <p><code>test.sh</code> runs <code>pytest</code> with coverage of <code>vexy_subs</code> and fails below 80%
@@ -875,16 +879,16 @@ coverage. It then runs <code>ruff check</code> on <code>src</code> and <code>tes
 <td>the <code>transcribe</code> pipeline and its resumable stages</td>
 </tr>
 <tr>
-<td><code>inference.py</code></td>
-<td>MLX Whisper recognition and diarization</td>
+<td><code>inference.py</code>, <code>qwen.py</code>, <code>audiocpp.py</code>, <code>workspace.py</code></td>
+<td>compatibility aliases to Audioflexy speech APIs</td>
 </tr>
 <tr>
-<td><code>alignment.py</code></td>
-<td>timestamp repair with a forced aligner</td>
+<td><code>alignment.py</code>, <code>punctuation.py</code>, <code>syntax.py</code></td>
+<td>compatibility aliases to Audioflexy alignment, punctuation and POS</td>
 </tr>
 <tr>
-<td><code>punctuation.py</code></td>
-<td>punctuation restoration</td>
+<td><code>speech_identity.py</code></td>
+<td>provider source/runtime fingerprints for stage receipts</td>
 </tr>
 <tr>
 <td><code>speakers.py</code></td>
@@ -959,6 +963,13 @@ credential such as <code>UV_PUBLISH_TOKEN</code> must be set.</p>
 <a href="https://github.com/oliverguhr/deepmultilingualpunctuation">FullStop punctuation</a>,
 <a href="https://github.com/notch-up/diarize">CPU diarization</a>,
 <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebVTT_API">WebVTT</a>.</p>
+<p>Provider speech source bytes and installed runtime versions identify inference
+caches. Punctuation has its own implementation identity; language/POS bytes and
+langid/NLTK versions belong only to the beautification receipt. Subtitle editorial
+or layout changes therefore leave recognition stages reusable. Changed settings
+still require <code>--force</code> before replacing existing output. Engine-boundary tests
+exercise real library functions with fake model loaders/generators; they do not
+claim acoustic model quality. Real inference acceptance is recorded privately.</p>
 
 
 

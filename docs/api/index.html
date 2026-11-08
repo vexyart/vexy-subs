@@ -624,6 +624,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#shared-speech-types-and-compatibility-imports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shared speech types and compatibility imports
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -843,6 +854,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#shared-speech-types-and-compatibility-imports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shared speech types and compatibility imports
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -966,6 +988,17 @@ blocking HTTP calls run in a worker thread.</p>
 <a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
 <a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </code></pre></div>
+<h2 id="shared-speech-types-and-compatibility-imports">Shared speech types and compatibility imports<a class="headerlink" href="#shared-speech-types-and-compatibility-imports" title="Permanent link">&para;</a></h2>
+<p>Recognition, acoustic alignment, diarization, punctuation, language identification
+and POS tagging run through <code>vexy_audioflexy.speech</code> from Audioflexy 1.0.3 or later.
+Normal installation resolves this provider automatically; local source and wheel
+installation options are described in <a href="../installation/">Installation</a>. The existing
+<code>vexy_subs.qwen</code>, <code>inference</code>, <code>alignment</code>, <code>audiocpp</code>, <code>punctuation</code>, <code>workspace</code>
+and <code>syntax</code> modules alias the provider modules, preserving function signatures
+and module identity. <code>vexy_subs.types.Word</code> and <code>Turn</code> are the same mutable-word
+and immutable-turn classes exported by Audioflexy. <code>Cue</code> remains subtitle-specific.
+Subtitle parsing, timing attribution, editorial rules, layout and exports remain
+in vexy-subs. Base imports and offline <code>render --beautify=False</code> load no models.</p>
 
 
 
