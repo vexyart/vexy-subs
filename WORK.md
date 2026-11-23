@@ -294,3 +294,13 @@ PyPI upload is held: the required new Audioflexy project was rejected with
 HTTP 429, "Too many new projects created". Publishing this consumer before the
 provider would leave an unavailable dependency. Exact checked 1.0.6 artifacts are
 retained privately and on GitHub; no consumer upload was attempted.
+
+## 2026-11-24 documentation theme
+
+`./build.sh docs` rebuilt the 14 HTML pages in `docs/` with fly-january 0.1.1
+and `chrome: none`. The strict ProperDocs build issued no warnings. Navigation
+uses neutral labels and the original article headings retain their anchors.
+
+`UV_NO_SYNC=1 ./test.sh` passed all 149 tests with 91.68% coverage and Ruff
+passed. The test environment used a worktree-local copy of the configured
+Audioflexy source.

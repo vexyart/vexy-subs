@@ -1,6 +1,10 @@
 <!-- this_file: CHANGELOG.md -->
 # Changelog
 
+## Unreleased
+
+- Site now uses the fly-january 0.1.1 theme (chrome: none).
+
 ## 1.0.6
 - Keep optional FullStop package-version changes confined to punctuation cache
   identity, preserving recognition/alignment/diarization stage reuse.

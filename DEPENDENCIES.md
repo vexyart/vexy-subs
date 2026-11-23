@@ -41,6 +41,8 @@ Optional `youtube` extra: yt-dlp for video, metadata and caption download.
 The scan page loads basecoat-css 1.1.0 from jsDelivr when opened.
 
 Build: hatchling with hatch-vcs (version from git tags).
+Documentation: `src_docs/build.sh` installs ProperDocs, fly-january 0.1.1 and the
+site's Markdown and navigation dependencies with `uvx`.
 Tests/build: pytest, pytest-cov, ruff, build and twine.
 
 Subtitle post-fix: langid 1.1.6 (bundled lightweight Naive Bayes language model),

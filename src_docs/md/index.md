@@ -1,4 +1,4 @@
-# vexy-subs
+# vexy-subs {data-toc-label="Subtitle guide"}
 
 `vexy-subs` generates subtitles for a video on your own machine, with one colour
 per speaker. It recognises the words, works out who said each one, restores

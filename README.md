@@ -342,8 +342,11 @@ segment, which PyPI rejects. The generated `src/vexy_subs/__version__.py` is ign
 `./publish.sh` runs `uvx gitnextver`, which commits all changes, creates the
 next `vX.Y.Z` tag and pushes. It stops if HEAD carries no such tag, then builds
 the package and runs `uv publish`. It does not run the tests, so run
-`./test.sh` first. The documentation source is in `src_docs/md/`;
-`src_docs/build.sh` builds it into `docs/`, which GitHub Pages serves.
+`./test.sh` first.
+
+Edit the documentation in `src_docs/md/`. Run `./build.sh docs` for a strict
+ProperDocs build into `docs/`, which GitHub Pages serves. The site uses
+fly-january 0.1.1 with `extra.fly.chrome` set to `none` in `src_docs/mkdocs.yml`.
 
 Implementation sources: [MLX Whisper](https://github.com/ml-explore/mlx-examples/tree/main/whisper),
 [Nemotron diarization](https://github.com/Blaizzy/mlx-audio/tree/main/mlx_audio/vad/models/nemotron_diarization),

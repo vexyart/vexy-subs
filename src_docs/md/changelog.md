@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Site now uses the fly-january 0.1.1 theme (chrome: none).
+
 ## 1.0.1
 
 - Added `translate`, ported from the retired vttrix package: two-pass

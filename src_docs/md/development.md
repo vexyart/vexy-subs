@@ -59,8 +59,8 @@ builds a development version, which PyPI does not accept.
 
 ## Documentation
 
-The documentation source is in `src_docs/md/`, and `src_docs/mkdocs.yml`
-configures ProperDocs with the MaterialX theme:
+Edit pages in `src_docs/md/`. The ProperDocs configuration in `src_docs/mkdocs.yml`
+uses fly-january 0.1.1 with `extra.fly.chrome` set to `none`.
 
 ```bash
 src_docs/build.sh          # strict build into docs/

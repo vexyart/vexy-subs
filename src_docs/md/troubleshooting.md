@@ -35,7 +35,7 @@ Caption files with the same name exist but have no receipt. Write elsewhere with
 `render` found existing `.srt`, `.vtt` or `.ass` files at the output stem. Choose
 another stem or add `--force`.
 
-## `Eight speaker slots filled; install vexy-subs[cluster] or supply verified turns_file`
+## `Eight speaker slots filled; install vexy-subs[cluster] or supply verified turns_file` {data-toc-label="Eight speaker slots filled"}
 
 Nemotron found eight speakers, its maximum, and the `cluster` extra is not
 installed. Install the extra, use `--diar_backend=cluster`, or supply verified
