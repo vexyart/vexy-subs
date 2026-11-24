@@ -4,8 +4,21 @@
 ## Unreleased
 
 - Site now uses the fly-january 0.2.1 theme (chrome: none).
+- Local releases hand off to GitHub Actions for PyPI Trusted Publishing. The PyPI project owner must keep the trusted publisher configured for repository `vexyart/vexy-subs`, workflow `release.yml`, environment `pypi`.
+
+## 1.0.7
+
+- PyPI published the wheel and source archive for tag `v1.0.7` (`179e269`). Both SHA-256 hashes match the GitHub release, and both PyPI attestations identify `release.yml` in the `pypi` environment.
+- Verified the deployed documentation in November 2026. The home, installation and development pages returned HTTP 200, and the installation page states the Audioflexy 1.0.3 minimum.
 
 ## 1.0.6
+
+- Ported speech and editorial model APIs to Audioflexy. The final provider suite passed 586 tests and its example (`645ee87`).
+- Preserved shared word and turn types, legacy imports, backend routing and cache reuse. Consumer integration tests passed (`645ee87`).
+- Checked the exact archives, strict docs and a clean base installation. Synthetic exports, offline commands and resume passed with the 149-test consumer suite (`645ee87`).
+- Ran the installed CLI on PATH with real MLX inference, verified two cues in three formats and resumed in a separate process with a byte-identical receipt (`645ee87`).
+- Completed independent integration review and rechecked offline NLTK cache reuse with downloads disabled (`645ee87`).
+- Tagged v1.0.6, verified the GitHub release archive hashes and tested the stable 1.0.6/1.0.3 wheel pair outside the checkouts (`d44fba6`).
 - Keep optional FullStop package-version changes confined to punctuation cache
   identity, preserving recognition/alignment/diarization stage reuse.
 - Delegate speech, alignment, diarization, punctuation, language identification
@@ -51,7 +64,26 @@
 - Exclude Voxtral, Granite and Kroko from recognition selections. Add `models`
   and backend diagnostics, native installation guidance and integration tests.
 
+## 1.0.5 verification
+
+- Checked video, playlist and URL-list input with uploader captions in `tests/test_youtube.py` (`99ca70b`).
+- Verified title, description and timed reference forwarding for Qwen chunks in `tests/test_youtube.py` (`99ca70b`).
+- Checked shot and in-shot changes, keyframes and visual analysis on 13 recordings totalling 11.2 hours (`99ca70b`).
+- Added the scan page, batch index and agent skills. The visual and YouTube tests passed in the 144-test suite (`99ca70b`).
+
+## 1.0.4 verification
+
+- Exercised the default Qwen MLX route and verified automatic audio.cpp selection separately in a clean installation without MLX (`b0ceb8c`).
+- Ran forced alignment and diarization through both real pipelines. Each emitted 40 matching cues across three formats (`b0ceb8c`).
+- Checked rejected recognizers and documented supported model and installation choices, including native configuration (`b0ceb8c`).
+- Passed 124 tests, the strict docs build and wheel/sdist checks. The installed native CLI also verified and resumed its real output (`b0ceb8c`).
+
 ## 1.0.3
+
+- Created adjacent source-grounded metadata for all 26 private recordings (`94a9dd3`).
+- Extracted the 180-second middle excerpt and completed fresh Whisper and Parakeet runs with and without prompts (`94a9dd3`).
+- Compared recognition prompts, timing and editorial output, including three Qwen runs, and delivered the private report (`94a9dd3`).
+- Applied the benchmark’s phrase-restart fix and verified the tagged release with 106 tests, a clean install and matching PyPI hashes (`d8464fe`, `94a9dd3`).
 - Remove immediate English phrase restarts when punctuation restoration puts a
   period after an unfinished article, preserving the completed phrase's timing,
   complete repeated sentences, questions, pauses and speaker handoffs.
@@ -105,12 +137,26 @@
 - Added original-caption backups, repeat-run hash checks and explicit numeric
   subtitle-rule audits with strict refusal for unresolved constraints.
 
+- Checked integrated and standalone language-aware beautification in the 36-test post-fix suite (WORK.md history).
+- Verified dotenv, environment and platformdirs TOML configuration for the optional LLM route (WORK.md history).
+- Verified grammatical and measured-font wrapping, frame rounding, strict rejection and first-run backups (WORK.md history).
+- Processed all 26 active subtitle sets and recorded outstanding reading-speed and timing cases for editorial review (WORK.md history).
+- Checked English discourse cleanup, casing and phrasing against 14,733 cues and 24 delivery mirrors. The 46-test suite passed (WORK.md history).
+
 ## 0.1.0
 - Added speaker-coloured ASS, styled WebVTT and coloured SRT exports.
 - Added continuous diarization and speaker-aware sentence/cue segmentation.
 - Added model punctuation restoration that preserves timed lexical tokens.
 - Added UTF-8 Markdown/text prompt files forwarded to Whisper recognition.
 - Added an installable Fire CLI, recoverable inference stages and hash verification.
+
+- Reviewed upstream inference and packaging guidance and cited the caption guidelines in the README (WORK.md history).
+- Verified UTF-8 Markdown and plain-text prompt forwarding to Whisper with pipeline fixtures (WORK.md history).
+- Checked continuous speaker attribution and sentence-aware cue boundaries across handoffs. The corpus audit found zero mixed-speaker cues (WORK.md history).
+- Verified word-preserving model punctuation and matching text in speaker-coloured ASS, styled WebVTT and coloured SRT exports (WORK.md history).
+- Inspected the two-speaker real-video pilot for rendered colour changes and punctuation across 254 cues (WORK.md history).
+- Built and privacy-audited the wheel and sdist, ran Twine checks and installed the wheel in a clean environment (WORK.md history).
+- Documented the Fire CLI, exercised real inference through the installed command and verified hashes and resume across 24 corpus outputs (WORK.md history).
 
 ## 2026-10-18: documentation plugins
 

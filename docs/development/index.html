@@ -986,13 +986,15 @@ uses fly-january 0.2.1 with <code>extra.fly.chrome</code> set to <code>none</cod
 <p>GitHub Pages serves <code>docs/</code> at <a href="https://vexy.dev/vexy-subs/">https://vexy.dev/vexy-subs/</a>. A push to <code>main</code>
 that changes <code>src_docs/</code> rebuilds <code>docs/</code> through the <code>Docs</code> workflow.</p>
 <h2 id="release">Release<a aria-label="Permanent link" class="headerlink" href="#release" title="Permanent link">&para;</a></h2>
+<p>Run <code>./test.sh</code> and push the release commit to the default branch. With the
+GitHub CLI signed in, request the next patch release:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>./publish.sh
 </code></pre></div>
-<p><code>publish.sh</code> runs <code>uvx gitnextver</code>, which commits pending changes, creates the
-next <code>vX.Y.Z</code> tag and pushes. It stops if <code>HEAD</code> then carries no such tag. It
-then builds the package from that tag and uploads it with <code>uv publish</code>. A
-credential such as <code>UV_PUBLISH_TOKEN</code> must be set.</p>
-<p>Run <code>./test.sh</code> before you publish; <code>publish.sh</code> does not run the tests.</p>
+<p>To choose the version, pass a <code>vMAJOR.MINOR.PATCH</code> tag to <code>./publish.sh</code>.
+The script dispatches <code>release.yml</code>. For a new tag, the workflow tags the
+remote default branch. For an existing tag, it builds the tagged commit.
+It attaches the wheel and source distribution to a GitHub release and uploads
+the same files to PyPI through Trusted Publishing in the <code>pypi</code> environment.</p>
 <h2 id="sources">Sources<a aria-label="Permanent link" class="headerlink" href="#sources" title="Permanent link">&para;</a></h2>
 <p><a href="https://github.com/ml-explore/mlx-examples/tree/main/whisper">MLX Whisper</a>,
 <a href="https://github.com/Blaizzy/mlx-audio/tree/main/mlx_audio/vad/models/nemotron_diarization">Nemotron diarization</a>,

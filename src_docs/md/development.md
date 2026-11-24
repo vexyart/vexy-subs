@@ -72,16 +72,18 @@ that changes `src_docs/` rebuilds `docs/` through the `Docs` workflow.
 
 ## Release
 
+Run `./test.sh` and push the release commit to the default branch. With the
+GitHub CLI signed in, request the next patch release:
+
 ```bash
 ./publish.sh
 ```
 
-`publish.sh` runs `uvx gitnextver`, which commits pending changes, creates the
-next `vX.Y.Z` tag and pushes. It stops if `HEAD` then carries no such tag. It
-then builds the package from that tag and uploads it with `uv publish`. A
-credential such as `UV_PUBLISH_TOKEN` must be set.
-
-Run `./test.sh` before you publish; `publish.sh` does not run the tests.
+To choose the version, pass a `vMAJOR.MINOR.PATCH` tag to `./publish.sh`.
+The script dispatches `release.yml`. For a new tag, the workflow tags the
+remote default branch. For an existing tag, it builds the tagged commit.
+It attaches the wheel and source distribution to a GitHub release and uploads
+the same files to PyPI through Trusted Publishing in the `pypi` environment.
 
 ## Sources
 

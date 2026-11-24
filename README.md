@@ -332,17 +332,15 @@ style guides, consulted on 2026-10-12.
 ./build.sh                # docs into docs/, then uv build and twine check
 ./build.sh docs           # documentation only (src_docs/build.sh)
 ./build.sh package        # package only
-./publish.sh              # gitnextver tag, build, uv publish to PyPI
+./publish.sh              # dispatch the GitHub release workflow for the next patch
 ```
 
-Versions come from git tags through hatch-vcs: tag releases with
-`uvx gitnextver`. Untagged commits build as development versions with a local
+Versions come from Git tags through hatch-vcs. Untagged commits build as development versions with a local
 segment, which PyPI rejects. The generated `src/vexy_subs/__version__.py` is ignored by git.
 
-`./publish.sh` runs `uvx gitnextver`, which commits all changes, creates the
-next `vX.Y.Z` tag and pushes. It stops if HEAD carries no such tag, then builds
-the package and runs `uv publish`. It does not run the tests, so run
-`./test.sh` first.
+Run `./test.sh` and push the release commit to the default branch before running
+`./publish.sh`. GitHub Actions builds the tagged wheel and source distribution,
+attaches them to a GitHub release and uploads them to PyPI through Trusted Publishing.
 
 Edit the documentation in `src_docs/md/`. Run `./build.sh docs` for a strict
 ProperDocs build into `docs/`, which GitHub Pages serves. The site uses
