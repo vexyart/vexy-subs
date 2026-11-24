@@ -3,6 +3,7 @@
 
 ## Unreleased
 
+- Documentation builds now require fly-january 0.3.0 or later.
 - Site now uses the fly-january 0.2.1 theme (chrome: none).
 - Local releases hand off to GitHub Actions for PyPI Trusted Publishing. The PyPI project owner must keep the trusted publisher configured for repository `vexyart/vexy-subs`, workflow `release.yml`, environment `pypi`.
 
