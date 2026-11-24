@@ -344,7 +344,7 @@ attaches them to a GitHub release and uploads them to PyPI through Trusted Publi
 
 Edit the documentation in `src_docs/md/`. Run `./build.sh docs` for a strict
 ProperDocs build into `docs/`, which GitHub Pages serves. The site uses
-fly-january 0.3.0 or later with `extra.fly.chrome` set to `none` in `src_docs/mkdocs.yml`.
+fly-january 0.4.0 or later (remote theme assets) with `extra.fly.chrome` set to `none` in `src_docs/mkdocs.yml`.
 
 Implementation sources: [MLX Whisper](https://github.com/ml-explore/mlx-examples/tree/main/whisper),
 [Nemotron diarization](https://github.com/Blaizzy/mlx-audio/tree/main/mlx_audio/vad/models/nemotron_diarization),

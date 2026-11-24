@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Documentation uses fly-january 0.4.0 or later (remote theme assets).
 - Site now uses the fly-january 0.3.0 or later theme (chrome: none).
 
 ## 1.0.1
