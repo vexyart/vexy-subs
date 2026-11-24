@@ -346,7 +346,7 @@ the package and runs `uv publish`. It does not run the tests, so run
 
 Edit the documentation in `src_docs/md/`. Run `./build.sh docs` for a strict
 ProperDocs build into `docs/`, which GitHub Pages serves. The site uses
-fly-january 0.1.1 with `extra.fly.chrome` set to `none` in `src_docs/mkdocs.yml`.
+fly-january 0.2.1 with `extra.fly.chrome` set to `none` in `src_docs/mkdocs.yml`.
 
 Implementation sources: [MLX Whisper](https://github.com/ml-explore/mlx-examples/tree/main/whisper),
 [Nemotron diarization](https://github.com/Blaizzy/mlx-audio/tree/main/mlx_audio/vad/models/nemotron_diarization),

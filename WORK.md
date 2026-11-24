@@ -297,8 +297,10 @@ retained privately and on GitHub; no consumer upload was attempted.
 
 ## 2026-11-24 documentation theme
 
-`./build.sh docs` rebuilt the 14 HTML pages in `docs/` with fly-january 0.1.1
-and `chrome: none`. The strict ProperDocs build issued no warnings. Navigation
+The build now pins fly-january 0.2.1.
+
+`./build.sh docs` rebuilt the 14 HTML pages in `docs/` when Fly was adopted
+with `chrome: none`. The strict ProperDocs build issued no warnings. Navigation
 uses neutral labels and the original article headings retain their anchors.
 
 `UV_NO_SYNC=1 ./test.sh` passed all 149 tests with 91.68% coverage and Ruff

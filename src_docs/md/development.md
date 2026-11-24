@@ -60,7 +60,7 @@ builds a development version, which PyPI does not accept.
 ## Documentation
 
 Edit pages in `src_docs/md/`. The ProperDocs configuration in `src_docs/mkdocs.yml`
-uses fly-january 0.1.1 with `extra.fly.chrome` set to `none`.
+uses fly-january 0.2.1 with `extra.fly.chrome` set to `none`.
 
 ```bash
 src_docs/build.sh          # strict build into docs/
